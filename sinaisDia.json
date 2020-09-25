@@ -1,0 +1,27 @@
+{
+   "sinal1": {
+      "hora": "14:40",
+      "ativo": "GBPUSD-OTC",
+      "entrada": "CAL"
+   },
+   "sinal2": {
+      "hora": "15:00",
+      "ativo": "EURUSD-OTC",
+      "entrada": "CAL"
+   },
+   "sinal3": {
+      "hora": "15:35",
+      "ativo": "NZDUSD-OTC",
+      "entrada": "PUT"
+   },
+   "sinal4": {
+      "hora": "15:55",
+      "ativo": "USDJPY-OTC",
+      "entrada": "PUT"
+   },
+   "sinal5": {
+      "hora": "16:40",
+      "ativo": "NZDUSD-OTC",
+      "entrada": "PUT"
+   }
+}
