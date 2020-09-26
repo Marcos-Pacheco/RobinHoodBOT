@@ -9,9 +9,8 @@ def timestamp_conv (t_value):
     return hora
 
 # Retorna o valor da banca
-def banca ():
-    conn = connect.login()
-    banca = conn.get_balance()
+def banca (api):
+    banca = api.get_balance()
     return banca
 
 # Converte sinais entrados em um dicionário de listas
@@ -50,7 +49,8 @@ def ler (filename):
     return file.read()
 
 # horaSinal recebe um valor string e retorna o horário demarcado menos dois segundos em forma de string
-def hora_entrada(horaSinal):
+# rmSec recebe valor em segundos a decrecer dos segundos da entrada inicial
+def formatar_hora_entrada(horaSinal,rmSec):
     horaSinal = horaSinal+':00'
     try:
         horaSinal = horaSinal.split(':')
@@ -66,7 +66,7 @@ def hora_entrada(horaSinal):
     horaIni = datetime.datetime(nowY, nowM, nowD, int(horaSinal[0]), int(horaSinal[1]), int(horaSinal[2]))
     
     # Definição do objeto datetime contento a quantidade a ser subtraída
-    horaSub = datetime.datetime(nowY, nowM, nowD, 0, 0, 5)
+    horaSub = datetime.datetime(nowY, nowM, nowD, 0, 0, rmSec)
     
     # Operação que retorna datetimedelta
     horaDelta = (horaIni - horaSub)
@@ -75,6 +75,35 @@ def hora_entrada(horaSinal):
     horaFin = str(horaFin)
 
     return str(horaFin[11:])
+
+# horaSinalFinal = ultimo sinal da lista
+# calcula o horário dado mais valor addMin
+def formatar_hora_parada(horaSinalFinal,addMin):
+    horaSinal = horaSinalFinal + ':00'
+    try:
+        horaSinal = horaSinal.split(':')
+    except NameError:
+        print(NameError)
+
+    now = datetime.datetime.now()
+    nowY = now.year
+    nowM = now.month
+    nowD = now.day
+
+    # Definição de objeto datetime a ser subtraído de x segundos
+    horaIni = datetime.datetime(nowY, nowM, nowD, int(horaSinal[0]), int(horaSinal[1]), int(horaSinal[2]))
+
+    # Definição do objeto datetime contento a quantidade a ser subtraída
+    # horaAdd = datetime.datetime(nowY, nowM, nowD, 0, addMin, 0)
+    horaAdd = datetime.timedelta(minutes=addMin)
+
+    # Operação que retorna datetimedelta
+    horaDelta = (horaIni + horaAdd)
+
+    # horaFin = datetime.datetime.strptime(str(horaDelta), '%H:%M:%S')
+    horaFin = str(horaDelta)
+
+    return str(horaFin[11:-3])
 
 # Agenda o horário e qual ação será realizada
 def agendar(horario, nomeFuncao, *args):
@@ -97,8 +126,7 @@ def executar_agenda(horaParada):
 # Código para fazer entrada. valor = valor da entrada; ativo = qual ativo Ex.: 'EURUSD'; tipoAtivo = binária ou digital
 # e tipoEntrada = 'CALL' ou 'PUT', horaEntrada = horário de entrada tratado, tempoVela = o timeframe do gráfico
 # 1/5/15...
-def entrar(valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
-    api = connect.login()
+def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
 
     # Verifica o tipo de ativo, se binárias ou digitais
     if (tipoAtivo == 'BINARY'):
@@ -157,12 +185,5 @@ def entrar(valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
 # agendar(hora_entrada('21:40'),entrar)
 # executar_agenda('21:41')
 
-valor = 1
-ativo = 'EURUSD-OTC'
-tipoAtivo = 'BINARY'
-tipoEntrada = 'CALL'
-tempoVela = 1
-hora = '02:07'
-
-agendar(hora_entrada(hora),entrar,valor,ativo,tipoAtivo,tipoEntrada,tempoVela)
-executar_agenda('02:08')
+# print (formatar_hora_entrada('21:35',5))
+# print(formatar_hora_parada('01:35',5))

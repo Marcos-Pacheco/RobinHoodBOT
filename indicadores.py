@@ -4,11 +4,11 @@ from talib import abstract
 import numpy as np
 
 # periodoVela = segundos, periodoMedia = periodo indicador
-def MediaMovelExp(par, periodoMedia, periodoVela):
-    api = connect.login()
-    api.start_candles_stream(par, periodoVela, periodoMedia+1)
+# retorna a MME de valores a partir deste momento
+def MediaMovelExp_Sync(api, ativo, periodoMedia, periodoVela):
+    api.start_candles_stream(ativo, periodoVela, periodoMedia+1)
     while True:
-        velas = api.get_realtime_candles(par, periodoVela)
+        velas = api.get_realtime_candles(ativo, periodoVela)
         valores = {'open'  : np.array([]),
                    'high'  : np.array([]),
                    'low'   : np.array([]),
@@ -50,16 +50,20 @@ def tendencia(valores):
     print(f"alta: {tenAlta}, baixa: {tenBaixa}")
 
     if (tenAlta > tenBaixa):
-        print("Ativo está em alta.")
-        return 1
+        # print("Ativo está em alta.")
+        return 'CALL'
     elif (tenAlta == tenBaixa):
-        print("Ativo está lateralizado.")
+        # print("Ativo está lateralizado.")
         return 'none'
     else:
-        print("Ativo está em baixa.")
-        return 0
+        # print("Ativo está em baixa.")
+        return 'PUT'
 
-pool1 = [1,2,3,4,4,2,8,5,6,7,1]
-
-# tendencia(pool1)
-MediaMovelExp('EURUSD',100,60)
+# api = conexão, ativo = parmoeda, periodoVela = 1/5/15/30..., qtdVelas = quantas velas puxar para trás
+def tendencia_2(api, ativo, periodoVela, qtdVelas):
+    velas = api.get_candles(ativo, (int(periodoVela) * 60), qtdVelas, time.time())
+    ultimo = round(velas[0]['close'], 4)
+    primeiro = round(velas[-1]['close'], 4)
+    diferenca = round(((ultimo - primeiro) / primeiro) * 100, 3)
+    tend = 'CALL' if ultimo < primeiro and diferenca > 0.01 else 'PUT' if ultimo > primeiro and diferenca > 0.01 else False
+    return tend
