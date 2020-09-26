@@ -66,27 +66,28 @@ def hora_entrada(horaSinal):
     horaIni = datetime.datetime(nowY, nowM, nowD, int(horaSinal[0]), int(horaSinal[1]), int(horaSinal[2]))
     
     # Definição do objeto datetime contento a quantidade a ser subtraída
-    horaSub = datetime.datetime(nowY, nowM, nowD, 0, 0, 2)
+    horaSub = datetime.datetime(nowY, nowM, nowD, 0, 0, 5)
     
     # Operação que retorna datetimedelta
-    horaFin = (horaIni - horaSub)
-    
-    return str(horaFin)
+    horaDelta = (horaIni - horaSub)
+
+    horaFin = datetime.datetime.strptime(str(horaDelta),'%H:%M:%S')
+    horaFin = str(horaFin)
+
+    return str(horaFin[11:])
 
 # Agenda o horário e qual ação será realizada
-def agendar(horario, nomeFuncao):
+def agendar(horario, nomeFuncao, *args):
     # Ex.: schedule.cada.tempo.fazer
-    schedule.every().day.at(horario).do(nomeFuncao)
+    schedule.every().day.at(horario).do(nomeFuncao, *args)
 
 # Executa a agenda. Usa var horaParada para terminar o loop infinito de execução
 def executar_agenda(horaParada):
     while True:
         now = datetime.datetime.now()
-        nowh = now.hour
-        nowm = now.minute
-        nows = now.second
-        horaNow = str(nowh)+':'+str(nowm)
-        if (horaParada == horaNow):
+        now = now.strftime('%H:%M')
+
+        if (horaParada == str(now)):
             print ("Último sinal realizado.")
             break
         else:
@@ -114,8 +115,8 @@ def entrar(valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                     resultado, valor = 'LOSS', resultop
                 else:
                     resultado, valor = 'WIN', resultop
-                return resultado,round(valor,2)
-                # print(f'RESULTADO: {resultado} / LUCRO: {round(valor, 2)}')
+                # return resultado,round(valor,2)
+                print(f'RESULTADO: {resultado} / LUCRO: {round(valor, 2)}')
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
 
@@ -137,14 +138,14 @@ def entrar(valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                     if resultado:
                         if valor > 0:
                             resultadof, valorf = 'WIN', round(valor, 2)
-                            return resultadof,valorf
-                            # print(f'RESULTADO: WIN / LUCRO: {round(valor, 2)}')
-                            # break
+                            # return resultadof,valorf
+                            print(f'RESULTADO: WIN / LUCRO: {round(valor, 2)}')
+                            break
                         else:
                             resultadof, valorf = 'WIN', round(valor, 2)
-                            return resultadof, valorf
-                            # print(f'RESULTADO: LOSS / LUCRO: {round(valor, 2)}')
-                            # break
+                            # return resultadof, valorf
+                            print(f'RESULTADO: LOSS / LUCRO: {round(valor, 2)}')
+                            break
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
 
@@ -161,5 +162,7 @@ ativo = 'EURUSD-OTC'
 tipoAtivo = 'BINARY'
 tipoEntrada = 'CALL'
 tempoVela = 1
+hora = '02:07'
 
-print(entrar(valor,ativo,tipoAtivo,tipoEntrada,tempoVela))
+agendar(hora_entrada(hora),entrar,valor,ativo,tipoAtivo,tipoEntrada,tempoVela)
+executar_agenda('02:08')
