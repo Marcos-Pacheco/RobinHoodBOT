@@ -14,9 +14,9 @@ def banca (api):
     return banca
 
 # Converte sinais entrados em um dicionário de listas
-def sinais_conv (text):
+def formatar_sinais (text):
     sinais_linhas = text.splitlines()
-    keys = ['hora', 'ativo', 'entrada']
+    keys = ['HORA', 'ATIVO', 'ENTRADA']
     sinailSchema = {}
     len1 = len(sinais_linhas)
     for i in range(len1):
@@ -27,18 +27,27 @@ def sinais_conv (text):
             aux[keys[j]] = sinais_linhas_parts[j]
             aux[keys[j]] = sinais_linhas_parts[j]
             aux[keys[j]] = sinais_linhas_parts[j]
-            sinailSchema['sinal'+str(i+1)] = aux
+            sinailSchema['SINAL'+str(i+1)] = aux
     # print (sinailSchema)
     return sinailSchema
 
 # Grava valore em um arquivo
 def gravar (value,filename,typefile, typewrite):
-    try:
-        file = open(filename+'.'+typefile,typewrite)
-        file.write(value)
-        file.close()
-    except NameError:
-        print(NameError)
+    if (typefile == 'json' or typefile == 'JSON'):
+        try:
+            aux = json.dumps(value, indent=3)
+            file = open(filename + '.' + typefile, typewrite)
+            file.write(aux)
+            file.close()
+        except NameError:
+            print(NameError)
+    else:
+        try:
+            file = open(filename+'.'+typefile,typewrite)
+            file.write(value)
+            file.close()
+        except NameError:
+            print(NameError)
 
 # Retorna o conteúdo do arquivo definido
 def ler (filename):
@@ -116,19 +125,33 @@ def executar_agenda(horaParada):
         now = datetime.datetime.now()
         now = now.strftime('%H:%M')
 
-        if (horaParada == str(now)):
+        if (str(now) >= horaParada):
             print ("Último sinal realizado.")
             break
         else:
             schedule.run_pending()
-            time.sleep(1)
+            time.sleep(0.5)
 
 # Código para fazer entrada. valor = valor da entrada; ativo = qual ativo Ex.: 'EURUSD'; tipoAtivo = binária ou digital
 # e tipoEntrada = 'CALL' ou 'PUT', horaEntrada = horário de entrada tratado, tempoVela = o timeframe do gráfico
 # 1/5/15...
 def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
-
     # Verifica o tipo de ativo, se binárias ou digitais
+    result = {}
+    # Valores adicionais a serem gravados ao final
+    now = datetime.datetime.now()
+    nowH = now.strftime('%H:%M')
+    nowD = now.strftime('%d-%m-%y')
+    filepath = './balancos/'+nowD+'.json'
+    wins = 0
+    losses = 0
+
+    # Checa se o arquivo contento contador de wins/losses existe, se sim adicona os valores respectivos as variaveis
+    if (arq_existe(filepath)):
+        data = json.loads(ler(filepath))
+        wins = int(data['BALANCO']['WINS'])
+        losses = int(data['BALANCO']['LOSSES'])
+
     if (tipoAtivo == 'BINARY'):
 
         # Se a entrada no tipoEntrada é valida
@@ -140,11 +163,22 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                 resultop = (api.check_win_v3(id))  # retorna o valor ganho ou perdido
                 # Verifica se o valor retornado é igual ao negativo do valor de entrada, indicado loss
                 if (resultop == (float(valor) * -1)):
-                    resultado, valor = 'LOSS', resultop
+                    resultado, valorf = 'LOSS', resultop
+                elif (resultop == float(0)):
+                    resultado, valorf = 'NONE', resultop
                 else:
-                    resultado, valor = 'WIN', resultop
-                # return resultado,round(valor,2)
-                print(f'RESULTADO: {resultado} / LUCRO: {round(valor, 2)}')
+                    resultado, valorf = 'WIN', resultop
+                print(f'RESULTADO: {resultado} / LUCRO: {round(valorf, 2)}')
+                # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultado, 'VALOR': round(valor, 2)}
+                # gravar(result,'./balancos/'+nowD,'json','a')
+
+                # Checa se o resultado foi WIN ou LOSS para adicionar ao contador
+                if (resultado == 'WIN'):
+                    wins += 1
+                else:
+                    losses += 1
+                balanco = banca(api)
+                gravar_balanco(filepath,balanco,nowH,nowD,ativo,resultado,round(valorf,2),wins,losses)
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
 
@@ -165,14 +199,28 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                     # Se resultado for obtido
                     if resultado:
                         if valor > 0:
-                            resultadof, valorf = 'WIN', round(valor, 2)
-                            # return resultadof,valorf
+                            resultadof, valorf = 'WIN', valor
                             print(f'RESULTADO: WIN / LUCRO: {round(valor, 2)}')
+                            if (resultadof == 'WIN'):
+                                wins += 1
+                            else:
+                                losses += 1
+                            balanco = banca(api)
+                            gravar_balanco(filepath, balanco, nowH, nowD, ativo, resultado, round(valorf, 2), wins, losses)
+                            # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
+                            # gravar(result, './balancos/'+nowD, 'json', 'a')
                             break
                         else:
-                            resultadof, valorf = 'WIN', round(valor, 2)
-                            # return resultadof, valorf
+                            resultadof, valorf = 'LOSS', valor
                             print(f'RESULTADO: LOSS / LUCRO: {round(valor, 2)}')
+                            if (resultadof == 'WIN'):
+                                wins += 1
+                            else:
+                                losses += 1
+                            balanco = banca(api)
+                            gravar_balanco(filepath, balanco, nowH, nowD, ativo, resultado, round(valorf, 2), wins, losses)
+                            # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
+                            # gravar(result, './balancos/'+nowD, 'json', 'a')
                             break
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
@@ -180,10 +228,64 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
     else:
         print('ERRO_TIPO_ATIVO:\nDIGITE CORRETAMENTO O NOME DO ATIVO.')
 
+# Retorna True se arquivo encontrado e False caso não
+def arq_existe(filepath):
+    try:
+        file = open(filepath)
+        file.close()
+        return True
+    except IOError:
+        return False
 
-# agendar(hora_entrada('21:35'),entrar)
-# agendar(hora_entrada('21:40'),entrar)
-# executar_agenda('21:41')
+# Grava os valores definidos em um arquivo balanco
+def gravar_balanco(filepath,balanco,horario,data,ativo,resultado,valor,qtdWin,qtdLoss):
 
-# print (formatar_hora_entrada('21:35',5))
-# print(formatar_hora_parada('01:35',5))
+    # Se o arquivo não exitir, criar o cabecário base e gravar a primeira entrada
+    if (arq_existe(filepath) == False):
+        cabecario = {
+            'BALANCO' : {
+                'BANCA_INICIO' : balanco,
+                'BANCA_FINAL' : balanco,
+                'WINS' : qtdWin,
+                'LOSSES' : qtdLoss,
+                'ENTRADAS': {
+                    "ENTRADA1": {
+                        "HORARIO": horario,
+                        "ATIVO": ativo,
+                        "RESULTADO": resultado,
+                        "VALOR": valor
+                    }
+                }
+            }
+        }
+        gravar(cabecario,'./balancos/'+data,'json','w')
+
+    # Se não, abrir o arquivo e atualizar o valores que precisam ser atualizados e adicionar nova entrada
+    else:
+        with open('./balancos/'+data+'.json') as json_file:
+            datavar = json.load(json_file)
+            qtdEnt = len(datavar['BALANCO']['ENTRADAS'])
+
+            # Secçao de entrada a ser apendada
+            entrada = {
+                    'ENTRADA'+str(int(qtdEnt)+1) : {
+                        'HORARIO' : horario,
+                        'ATIVO' : ativo,
+                        'RESULTADO' : resultado,
+                        'VALOR' : valor
+                    }
+                }
+
+            # Secção de cabeçalho a ser atualizado
+            datavar['BALANCO']['BANCA_FINAL'] = balanco
+            datavar['BALANCO']['WINS'] = qtdWin
+            datavar['BALANCO']['LOSSES'] = qtdLoss
+
+            # Adicionar novo dicionario ao final da lista
+            datavar['BALANCO']['ENTRADAS'].update(entrada)
+            gravar(datavar,'./balancos/'+data,'json','w')
+
+
+api = connect.login()
+
+entrar(api,1,'EURUSD-OTC','BINARY','PUT',1)

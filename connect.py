@@ -15,7 +15,7 @@ def conn ():
 
     dados = json.loads(file.read())
 
-    connObj = IQ_Option(dados['usuario']['email'], dados['usuario']['senha'])
+    connObj = IQ_Option(dados['USUARIO']['EMAIL'], dados['USUARIO']['SENHA'])
     return connObj
 
 # Executa uma conexão com a conta definida
