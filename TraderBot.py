@@ -27,16 +27,8 @@ def trader_bot_sinais(api):
             horaFinal = j['HORA']
     executar_agenda(formatar_hora_parada(horaFinal, 6))
 
-# valor = 1
-# ativo = 'EURUSD-OTC'
-# tipoAtivo = 'BINARY'
-# tipoEntrada = 'CALL'
-# tempoVela = 1
-# hora = '16:26'
 
-# agendar(formatar_hora_entrada(hora,5),entrar,api,valor,ativo,tipoAtivo,tipoEntrada,tempoVela)
-# executar_agenda(formatar_hora_parada(hora,1))
-
+# Preencher com os sinais no formato a seguir
 valor = formatar_sinais(
 """01:00,USDCHF-OTC,PUT
 01:50,AUDCAD-OTC,PUT
@@ -65,7 +57,11 @@ valor = formatar_sinais(
 16:10,EURUSD-OTC,PUT"""
 )
 
+# Grava os sinais formatados em json para utilização no resto do código
 gravar(valor,'sinaisDia','json','w')
 
+# Inicia a conexão
 api = connect.login()
+
+# Inicia o bot
 trader_bot_sinais(api)

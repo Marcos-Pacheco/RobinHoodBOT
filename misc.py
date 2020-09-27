@@ -178,7 +178,7 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                 else:
                     losses += 1
                 balanco = banca(api)
-                gravar_balanco(filepath,balanco,nowH,nowD,ativo,resultado,round(valorf,2),wins,losses)
+                gravar_balanco(filepath,balanco,nowH,nowD,ativo,tipoAtivo,resultado,round(valorf,2),wins,losses)
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
 
@@ -206,7 +206,9 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                             else:
                                 losses += 1
                             balanco = banca(api)
-                            gravar_balanco(filepath, balanco, nowH, nowD, ativo, resultado, round(valorf, 2), wins, losses)
+                            gravar_balanco(filepath, balanco, nowH, nowD, ativo,tipoAtivo, resultadof, round(valorf,
+                                                                                                             2), wins, \
+                            losses)
                             # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
                             # gravar(result, './balancos/'+nowD, 'json', 'a')
                             break
@@ -218,7 +220,9 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                             else:
                                 losses += 1
                             balanco = banca(api)
-                            gravar_balanco(filepath, balanco, nowH, nowD, ativo, resultado, round(valorf, 2), wins, losses)
+                            gravar_balanco(filepath, balanco, nowH, nowD, ativo,tipoAtivo, resultadof, round(valorf,
+                                                                                                             2), wins, \
+                            losses)
                             # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
                             # gravar(result, './balancos/'+nowD, 'json', 'a')
                             break
@@ -238,7 +242,7 @@ def arq_existe(filepath):
         return False
 
 # Grava os valores definidos em um arquivo balanco
-def gravar_balanco(filepath,balanco,horario,data,ativo,resultado,valor,qtdWin,qtdLoss):
+def gravar_balanco(filepath,balanco,horario,data,ativo,tipoAtivo,resultado,valor,qtdWin,qtdLoss):
 
     # Se o arquivo não exitir, criar o cabecário base e gravar a primeira entrada
     if (arq_existe(filepath) == False):
@@ -252,6 +256,7 @@ def gravar_balanco(filepath,balanco,horario,data,ativo,resultado,valor,qtdWin,qt
                     "ENTRADA1": {
                         "HORARIO": horario,
                         "ATIVO": ativo,
+                        "TIPO_ATIVO": tipoAtivo,
                         "RESULTADO": resultado,
                         "VALOR": valor
                     }
@@ -271,6 +276,7 @@ def gravar_balanco(filepath,balanco,horario,data,ativo,resultado,valor,qtdWin,qt
                     'ENTRADA'+str(int(qtdEnt)+1) : {
                         'HORARIO' : horario,
                         'ATIVO' : ativo,
+                        "TIPO_ATIVO": tipoAtivo,
                         'RESULTADO' : resultado,
                         'VALOR' : valor
                     }
