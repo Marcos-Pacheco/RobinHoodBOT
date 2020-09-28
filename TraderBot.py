@@ -42,6 +42,8 @@ def trader_bot_sinais(api):
         # Verifica se é o último sinal da lista, caso sim, adiciona a hora do sinal à variável horaFinal
         if (cont == tamanho):
             horaFinal = j['HORA']
+    # Adiciona a agenda jobs de reconnect a cada 10 min
+    schedule.every(10).minutes.do(connect.login,True)
     executar_agenda(formatar_hora_parada(horaFinal, 6),nowD)
 
 
@@ -77,10 +79,9 @@ valor = formatar_sinais(
 # Grava os sinais formatados em json para utilização no resto do código
 gravar(valor,'sinaisDia','json','w')
 
-# Inicia a conexão
+# Inicia a conexão e checa periodicamente para saber se ainda está aberta
 api = connect.login()
 
 # Inicia o bot
 trader_bot_sinais(api)
 
-# print(tendencia_2(api,'USDJPY',30,200))

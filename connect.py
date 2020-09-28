@@ -19,7 +19,7 @@ def conn ():
     return connObj
 
 # Executa uma conexão com a conta definida
-def login ():
+def login (reconnect=False):
     error_password = """{"code":"invalid_credentials","message":"You entered the wrong credentials. Please check that the login/password is correct."}"""
     error_network = "[Errno -2] Name or service not known"
     tipoCon = "PRACTICE"
@@ -28,22 +28,23 @@ def login ():
     # Tentativas de reconexão
     check, reason = login.connect()
     if check:
-        print ("Iniciando...")
+        if (reconnect == False):
+            print ("Iniciando...")
         while True:
             if login.check_connect() == False:
                 print ("Erro ao conectar, tentando reconexão.")
                 check, reason = login.connect()
                 if check:
-                    dadosPer = perfil(login)
-                    print(f"Reconexão bem sucessedida!\nSeja bem-vindo(a) {dadosPer['name']}!")
+                    print(f"Reconexão bem sucessedida!")
                 else:
                     if reason == error_password:
                         print ("Senha errada, tente novamente.")
                     else:
                         print ("Sem rede.")
             else:
-                dadosPer = perfil(login)
-                print (f"Conexão feita com Sucesso! \nSeja bem-vindo(a) {dadosPer['name']}!")
+                if (reconnect == False):
+                    dadosPer = perfil(login)
+                    print (f"Conexão feita com Sucesso! \nSeja bem-vindo(a) {dadosPer['name']}!")
                 break
     else:
         if reason == error_network:

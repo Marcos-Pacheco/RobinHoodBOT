@@ -259,10 +259,10 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
                             # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
                             # entrada
                             if (arq_existe(filepath) == True):
-                                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado,
+                                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultadof,
                                                round(valorf, 2), wins, losses)
                             else:
-                                gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultado,
+                                gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultadof,
                                                round(valorf, 2),
                                                wins, losses)
                             # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
@@ -279,10 +279,10 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
                             # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
                             # entrada
                             if (arq_existe(filepath) == True):
-                                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado,
+                                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultadof,
                                                round(valorf, 2), wins, losses)
                             else:
-                                gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultado,
+                                gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultadof,
                                                round(valorf, 2),
                                                wins, losses)
                             # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
