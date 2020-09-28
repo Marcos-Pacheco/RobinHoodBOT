@@ -62,8 +62,10 @@ def tendencia(valores):
 # api = conexão, ativo = parmoeda, periodoVela = 1/5/15/30..., qtdVelas = quantas velas puxar para trás
 def tendencia_2(api, ativo, periodoVela, qtdVelas):
     velas = api.get_candles(ativo, (int(periodoVela) * 60), qtdVelas, time.time())
+    # print (velas)
     ultimo = round(velas[0]['close'], 4)
     primeiro = round(velas[-1]['close'], 4)
-    diferenca = round(((ultimo - primeiro) / primeiro) * 100, 3)
-    tend = 'CALL' if ultimo < primeiro and diferenca > 0.01 else 'PUT' if ultimo > primeiro and diferenca > 0.01 else False
+    diferenca = abs(round(((ultimo - primeiro) / primeiro) * 100, 2))
+    tend = 'CALL' if ultimo < primeiro and diferenca > 0.01 else 'PUT' if ultimo > primeiro and diferenca > 0.01 \
+        else 'NONE'
     return tend

@@ -1,5 +1,6 @@
 from datetime import datetime
 from dateutil import tz
+from indicadores import tendencia_2
 import json, schedule, connect, time, datetime
 
 # Converte o valor de timestamp para valor legível
@@ -120,22 +121,23 @@ def agendar(horario, nomeFuncao, *args):
     schedule.every().day.at(horario).do(nomeFuncao, *args)
 
 # Executa a agenda. Usa var horaParada para terminar o loop infinito de execução
-def executar_agenda(horaParada):
+def executar_agenda(horaParada, dataExec):
     while True:
         now = datetime.datetime.now()
-        now = now.strftime('%H:%M')
-
-        if (str(now) >= horaParada):
-            print ("Último sinal realizado.")
-            break
-        else:
-            schedule.run_pending()
-            time.sleep(0.5)
+        nowH = now.strftime('%H:%M')
+        nowD = now.strftime('%d-%m-%y')
+        if (dataExec == nowD):
+            if (str(nowH) >= horaParada):
+                print ("Último sinal realizado.")
+                break
+            else:
+                schedule.run_pending()
+                time.sleep(0.5)
 
 # Código para fazer entrada. valor = valor da entrada; ativo = qual ativo Ex.: 'EURUSD'; tipoAtivo = binária ou digital
 # e tipoEntrada = 'CALL' ou 'PUT', horaEntrada = horário de entrada tratado, tempoVela = o timeframe do gráfico
-# 1/5/15...
-def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
+# 1/5/15...; filtrar = boolean
+def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
     # Verifica o tipo de ativo, se binárias ou digitais
     result = {}
     # Valores adicionais a serem gravados ao final
@@ -145,6 +147,7 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
     filepath = './balancos/'+nowD+'.json'
     wins = 0
     losses = 0
+    balancoIni = banca(api)
 
     # Checa se o arquivo contento contador de wins/losses existe, se sim adicona os valores respectivos as variaveis
     if (arq_existe(filepath)):
@@ -156,7 +159,27 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
 
         # Se a entrada no tipoEntrada é valida
         if (tipoEntrada == 'CALL' or tipoEntrada == 'PUT'):
-            status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
+            # Decide se a entrada deve ser filtrada por indicadores ou não
+            if (filtrar == True):
+                # Checa se o ativo está aberto em DIGITAL, se não, tenta fazer a operação em BINÁRIO
+                statusAtivo = checar_ativo_aberto(api,ativo,tipoAtivo)
+                if (statusAtivo == False):
+                    # Define que a entrada só será realizada caso a tendência esteja de acordo
+                    if (tendencia_2(api, ativo, 30, 200) == tipoEntrada):
+                        entrar(api,ativo,'DIGITAL',tipoEntrada,tempoVela,True)
+                        # status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
+                    else:
+                        print('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
+                        return None
+                else:
+                    # Define que a entrada só será realizada caso a tendência esteja de acordo
+                    if (tendencia_2(api,ativo,30,200) == tipoEntrada):
+                        status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
+                    else:
+                        print('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
+                        return None
+            else:
+                status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
 
             # Se a entrada teve sucesso
             if status:
@@ -177,17 +200,44 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                     wins += 1
                 else:
                     losses += 1
-                balanco = banca(api)
-                gravar_balanco(filepath,balanco,nowH,nowD,ativo,tipoAtivo,resultado,round(valorf,2),wins,losses)
+                balancoFin = banca(api)
+
+                # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
+                # entrada
+                if (arq_existe(filepath) == True):
+                    gravar_balanco(filepath,balancoFin,nowH,nowD,ativo,tipoAtivo,resultado,round(valorf,2),wins,losses)
+                else:
+                    gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultado, round(valorf, 2),
+                                   wins, losses)
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
 
     # Verifica se tipoAtivo, se binárias ou digitais
     elif (tipoAtivo == 'DIGITAL'):
 
-        # Se tipoEntrada é valido
+        # Se a entrada no tipoEntrada é valida
         if (tipoEntrada == 'CALL' or tipoEntrada == 'PUT'):
-            id = api.buy_digital_spot(ativo, valor, tipoEntrada, tempoVela)
+            # Decide se a entrada deve ser filtrada por indicadores ou não
+            if (filtrar == True):
+                # Checa se o ativo está aberto em DIGITAL, se não, tenta fazer a operação em BINÁRIO
+                statusAtivo = checar_ativo_aberto(api, ativo, tipoAtivo)
+                if (statusAtivo == False):
+                    # Define que a entrada só será realizada caso a tendência esteja de acordo
+                    if (tendencia_2(api, ativo, 30, 200) == tipoEntrada):
+                        entrar(api, ativo, 'BINARY', tipoEntrada, tempoVela, True)
+                        # status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
+                    else:
+                        print ('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
+                        return None
+                else:
+                    # Define que a entrada só será realizada caso a tendência esteja de acordo
+                    if (tendencia_2(api, ativo, 30, 200) == tipoEntrada):
+                        id = api.buy_digital_spot(ativo, valor, tipoEntrada, tempoVela)
+                    else:
+                        print ('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
+                        return None
+            else:
+                id = api.buy_digital_spot(ativo, valor, tipoEntrada, tempoVela)
 
             # Checa se a entrada deu certo
             if isinstance(id, tuple):
@@ -205,10 +255,16 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                                 wins += 1
                             else:
                                 losses += 1
-                            balanco = banca(api)
-                            gravar_balanco(filepath, balanco, nowH, nowD, ativo,tipoAtivo, resultadof, round(valorf,
-                                                                                                             2), wins, \
-                            losses)
+                            balancoFin = banca(api)
+                            # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
+                            # entrada
+                            if (arq_existe(filepath) == True):
+                                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado,
+                                               round(valorf, 2), wins, losses)
+                            else:
+                                gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultado,
+                                               round(valorf, 2),
+                                               wins, losses)
                             # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
                             # gravar(result, './balancos/'+nowD, 'json', 'a')
                             break
@@ -219,10 +275,16 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                                 wins += 1
                             else:
                                 losses += 1
-                            balanco = banca(api)
-                            gravar_balanco(filepath, balanco, nowH, nowD, ativo,tipoAtivo, resultadof, round(valorf,
-                                                                                                             2), wins, \
-                            losses)
+                            balancoFin = banca(api)
+                            # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
+                            # entrada
+                            if (arq_existe(filepath) == True):
+                                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado,
+                                               round(valorf, 2), wins, losses)
+                            else:
+                                gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultado,
+                                               round(valorf, 2),
+                                               wins, losses)
                             # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
                             # gravar(result, './balancos/'+nowD, 'json', 'a')
                             break
@@ -291,7 +353,32 @@ def gravar_balanco(filepath,balanco,horario,data,ativo,tipoAtivo,resultado,valor
             datavar['BALANCO']['ENTRADAS'].update(entrada)
             gravar(datavar,'./balancos/'+data,'json','w')
 
+# Checa se o ativo em questão está aberto. Se sim retorna True, senão False
+def checar_ativo_aberto(api,ativo,tipoAtivo):
+    # dict com informações de ativos
+    dado = api.get_all_open_time()
+    # dict que receberá os binários ativos
+    binary = []
+    # dict que receberá os digitais ativos
+    digital = []
 
-api = connect.login()
+    # Carrega todas as opções binárias abertas
+    for paridade in dado['turbo']:
+        if dado['turbo'][paridade]['open'] == True:
+            binary.append(paridade)
 
-entrar(api,1,'EURUSD-OTC','BINARY','PUT',1)
+    # Carrega todas as opções digitais abertas
+    for paridade in dado['digital']:
+        if dado['digital'][paridade]['open'] == True:
+            digital.append(paridade)
+    if (tipoAtivo == 'BINARY'):
+        return ativo in binary
+    elif (tipoAtivo == 'DIGITAL'):
+        return ativo in digital
+    else:
+        'ERRO_CHECAR_ABERTO: VALOR EM TIPO ATIVO DEVE SER "BINARY" ou "DIGITAL".'
+        return None
+
+# Checa se o ativo em questão tem a opção necessária de periodoVela
+def checar_periodo(api):
+    print ('teste')

@@ -1,127 +1,127 @@
 {
    "SINAL1": {
-      "HORA": "01:00",
-      "ATIVO": "USDCHF-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "00:40",
+      "ATIVO": "USDJPY",
+      "ENTRADA": "CALL"
    },
    "SINAL2": {
-      "HORA": "01:50",
-      "ATIVO": "AUDCAD-OTC",
+      "HORA": "01:35",
+      "ATIVO": "GBPJPY",
       "ENTRADA": "PUT"
    },
    "SINAL3": {
-      "HORA": "02:30",
-      "ATIVO": "NZDUSD-OTC",
+      "HORA": "02:10",
+      "ATIVO": "EURJPY",
       "ENTRADA": "PUT"
    },
    "SINAL4": {
-      "HORA": "03:15",
-      "ATIVO": "GBPUSD-OTC",
+      "HORA": "03:10",
+      "ATIVO": "EURUSD",
       "ENTRADA": "PUT"
    },
    "SINAL5": {
-      "HORA": "04:45",
-      "ATIVO": "NZDUSD-OTC",
+      "HORA": "04:35",
+      "ATIVO": "GBPNZD",
       "ENTRADA": "PUT"
    },
    "SINAL6": {
-      "HORA": "05:10",
-      "ATIVO": "GBPUSD-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "05:05",
+      "ATIVO": "EURGBP",
+      "ENTRADA": "CALL"
    },
    "SINAL7": {
-      "HORA": "06:10",
-      "ATIVO": "NZDUSD-OTC",
-      "ENTRADA": "CAL"
+      "HORA": "05:45",
+      "ATIVO": "EURJPY",
+      "ENTRADA": "PUT"
    },
    "SINAL8": {
       "HORA": "07:00",
-      "ATIVO": "AUDCAD-OTC",
+      "ATIVO": "USDJPY",
       "ENTRADA": "PUT"
    },
    "SINAL9": {
-      "HORA": "07:20",
-      "ATIVO": "NZDUSD-OTC",
+      "HORA": "07:55",
+      "ATIVO": "EURJPY",
       "ENTRADA": "PUT"
    },
    "SINAL10": {
-      "HORA": "08:20",
-      "ATIVO": "AUDCAD-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "08:10",
+      "ATIVO": "USDJPY",
+      "ENTRADA": "CALL"
    },
    "SINAL11": {
-      "HORA": "08:50",
-      "ATIVO": "USDJPY-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "08:40",
+      "ATIVO": "USDCHF",
+      "ENTRADA": "CALL"
    },
    "SINAL12": {
-      "HORA": "09:20",
-      "ATIVO": "EURUSD-OTC",
+      "HORA": "09:35",
+      "ATIVO": "GBPJPY",
       "ENTRADA": "PUT"
    },
    "SINAL13": {
-      "HORA": "10:55",
-      "ATIVO": "EURJPY-OTC",
-      "ENTRADA": "CAL"
+      "HORA": "10:10",
+      "ATIVO": "GBPUSD",
+      "ENTRADA": "PUT"
    },
    "SINAL14": {
-      "HORA": "11:20",
-      "ATIVO": "NZDUSD-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "10:30",
+      "ATIVO": "USDCHF",
+      "ENTRADA": "CALL"
    },
    "SINAL15": {
-      "HORA": "11:45",
-      "ATIVO": "GBPUSD-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "11:25",
+      "ATIVO": "EURAUD",
+      "ENTRADA": "CALL"
    },
    "SINAL16": {
-      "HORA": "12:10",
-      "ATIVO": "EURGBP-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "11:50",
+      "ATIVO": "USDJPY",
+      "ENTRADA": "CALL"
    },
    "SINAL17": {
-      "HORA": "12:30",
-      "ATIVO": "AUDCAD-OTC",
-      "ENTRADA": "CAL"
+      "HORA": "12:00",
+      "ATIVO": "EURUSD",
+      "ENTRADA": "CALL"
    },
    "SINAL18": {
-      "HORA": "13:05",
-      "ATIVO": "EURGBP-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "12:40",
+      "ATIVO": "EURAUD",
+      "ENTRADA": "CALL"
    },
    "SINAL19": {
-      "HORA": "13:30",
-      "ATIVO": "NZDUSD-OTC",
+      "HORA": "13:00",
+      "ATIVO": "USDJPY",
       "ENTRADA": "PUT"
    },
    "SINAL20": {
-      "HORA": "13:50",
-      "ATIVO": "EURUSD-OTC",
+      "HORA": "13:25",
+      "ATIVO": "GBPUSD",
       "ENTRADA": "PUT"
    },
    "SINAL21": {
-      "HORA": "14:15",
-      "ATIVO": "USDJPY-OTC",
+      "HORA": "13:55",
+      "ATIVO": "GBPNZD",
       "ENTRADA": "PUT"
    },
    "SINAL22": {
-      "HORA": "15:05",
-      "ATIVO": "USDCHF-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "14:10",
+      "ATIVO": "AUDUSD",
+      "ENTRADA": "CALL"
    },
    "SINAL23": {
-      "HORA": "15:35",
-      "ATIVO": "NZDUSD-OTC",
+      "HORA": "14:40",
+      "ATIVO": "USDCHF",
       "ENTRADA": "PUT"
    },
    "SINAL24": {
-      "HORA": "15:55",
-      "ATIVO": "NZDUSD-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "15:40",
+      "ATIVO": "GBPUSD",
+      "ENTRADA": "CALL"
    },
    "SINAL25": {
-      "HORA": "16:10",
-      "ATIVO": "EURUSD-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "16:15",
+      "ATIVO": "EURUSD",
+      "ENTRADA": "CALL"
    }
 }

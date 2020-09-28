@@ -4,57 +4,74 @@ import connect, json
 
 # Recebe o objeto de conexão e executa entradas baseadas no sinaisDia.json
 def trader_bot_sinais(api):
+    # Carrega a lista de sinais
     sinais = json.loads(ler('sinaisDia.json'))
-    # valor = int(banca(api))
+
+    # Carrega o valor da entrada baseada na banca e na porcentagem definida
+    # valor = round(float(banca(api)),2)
     # valor = valor*0.02
     valor = 1
-    tipoAtivo = 'BINARY'
+
+    # Tipo padrão de ativo
+    tipoAtivo = 'DIGITAL'
+
+    # tamanho da lista de sinais
     tamanho = len(sinais)
+
+    # periodo da vela 5/15/30/60...
+    periodoVela = 5
+
+    # Contador para saber se já está no final da lista de sinais
     cont = 0
 
     # Iterador da lista do json da lista de sinais
     for i, j in sinais.items():
         now = datetime.datetime.now()
-        now = now.strftime('%H:%M')
+        nowH = now.strftime('%H:%M')
+
+        # dia padrão de execução é o dia atual
+        nowD = now.strftime('%d-%m-%y')
+
+        # Caso seja necessário definir outro valor, como por exemplo o  dia seguinte
+        # nowD = '28-09-20'
         cont += 1
-        periodoVela = 5
         # Verifica se o sinal em questão ainda não passou do tempo, se não, realiza o agendamento
-        if (j['HORA'] > now):
-            agendar(formatar_hora_entrada(j['HORA'], 5), entrar, api, valor, j['ATIVO'], tipoAtivo, j['ENTRADA'],
-                    periodoVela)
+        if (j['HORA'] > nowH):
+            agendar(formatar_hora_entrada(j['HORA'], 4), entrar, api, valor, j['ATIVO'], tipoAtivo, j['ENTRADA'],
+                    periodoVela,True)
         # Verifica se é o último sinal da lista, caso sim, adiciona a hora do sinal à variável horaFinal
         if (cont == tamanho):
             horaFinal = j['HORA']
-    executar_agenda(formatar_hora_parada(horaFinal, 6))
+    executar_agenda(formatar_hora_parada(horaFinal, 6),nowD)
 
 
 # Preencher com os sinais no formato a seguir
 valor = formatar_sinais(
-"""01:00,USDCHF-OTC,PUT
-01:50,AUDCAD-OTC,PUT
-02:30,NZDUSD-OTC,PUT
-03:15,GBPUSD-OTC,PUT
-04:45,NZDUSD-OTC,PUT
-05:10,GBPUSD-OTC,PUT
-06:10,NZDUSD-OTC,CALL
-07:00,AUDCAD-OTC,PUT
-07:20,NZDUSD-OTC,PUT
-08:20,AUDCAD-OTC,PUT
-08:50,USDJPY-OTC,PUT
-09:20,EURUSD-OTC,PUT
-10:55,EURJPY-OTC,CALL
-11:20,NZDUSD-OTC,PUT
-11:45,GBPUSD-OTC,PUT
-12:10,EURGBP-OTC,PUT
-12:30,AUDCAD-OTC,CALL
-13:05,EURGBP-OTC,PUT
-13:30,NZDUSD-OTC,PUT
-13:50,EURUSD-OTC,PUT
-14:15,USDJPY-OTC,PUT
-15:05,USDCHF-OTC,PUT
-15:35,NZDUSD-OTC,PUT
-15:55,NZDUSD-OTC,PUT
-16:10,EURUSD-OTC,PUT"""
+"""00:40,USDJPY,CALL
+01:35,GBPJPY,PUT
+02:10,EURJPY,PUT
+03:10,EURUSD,PUT
+04:35,GBPNZD,PUT
+05:05,EURGBP,CALL
+05:45,EURJPY,PUT
+07:00,USDJPY,PUT
+07:55,EURJPY,PUT
+08:10,USDJPY,CALL
+08:40,USDCHF,CALL
+09:35,GBPJPY,PUT
+10:10,GBPUSD,PUT
+10:30,USDCHF,CALL
+11:25,EURAUD,CALL
+11:50,USDJPY,CALL
+12:00,EURUSD,CALL
+12:40,EURAUD,CALL
+13:00,USDJPY,PUT
+13:25,GBPUSD,PUT
+13:55,GBPNZD,PUT
+14:10,AUDUSD,CALL
+14:40,USDCHF,PUT
+15:40,GBPUSD,CALL
+16:15,EURUSD,CALL"""
 )
 
 # Grava os sinais formatados em json para utilização no resto do código
@@ -65,3 +82,5 @@ api = connect.login()
 
 # Inicia o bot
 trader_bot_sinais(api)
+
+# print(tendencia_2(api,'USDJPY',30,200))
