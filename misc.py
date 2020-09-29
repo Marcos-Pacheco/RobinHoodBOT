@@ -166,7 +166,7 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
                 if (statusAtivo == False):
                     # Define que a entrada só será realizada caso a tendência esteja de acordo
                     if (tendencia_2(api, ativo, 30, 200) == tipoEntrada):
-                        entrar(api,ativo,'DIGITAL',tipoEntrada,tempoVela,True)
+                        entrar(api,valor,ativo,'DIGITAL',tipoEntrada,tempoVela,True)
                         # status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
                     else:
                         print('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
@@ -214,7 +214,7 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
 
     # Verifica se tipoAtivo, se binárias ou digitais
     elif (tipoAtivo == 'DIGITAL'):
-
+        id = ''
         # Se a entrada no tipoEntrada é valida
         if (tipoEntrada == 'CALL' or tipoEntrada == 'PUT'):
             # Decide se a entrada deve ser filtrada por indicadores ou não
@@ -224,7 +224,7 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
                 if (statusAtivo == False):
                     # Define que a entrada só será realizada caso a tendência esteja de acordo
                     if (tendencia_2(api, ativo, 30, 200) == tipoEntrada):
-                        entrar(api, ativo, 'BINARY', tipoEntrada, tempoVela, True)
+                        entrar(api, valor, ativo, 'BINARY', tipoEntrada, tempoVela, True)
                         # status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
                     else:
                         print ('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
@@ -239,55 +239,55 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
             else:
                 id = api.buy_digital_spot(ativo, valor, tipoEntrada, tempoVela)
 
-            # Checa se a entrada deu certo
-            if isinstance(id, tuple):
+        # Checa se a entrada deu certo
+        if isinstance(id, tuple):
 
-                # Loop para procurar o resultado, caso haja
-                while True:
-                    resultado, valor = api.check_win_digital_v2(id[1])
+            # Loop para procurar o resultado, caso haja
+            while True:
+                resultado, valor = api.check_win_digital_v2(id[1])
 
-                    # Se resultado for obtido
-                    if resultado:
-                        if valor > 0:
-                            resultadof, valorf = 'WIN', valor
-                            print(f'RESULTADO: WIN / LUCRO: {round(valor, 2)}')
-                            if (resultadof == 'WIN'):
-                                wins += 1
-                            else:
-                                losses += 1
-                            balancoFin = banca(api)
-                            # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
-                            # entrada
-                            if (arq_existe(filepath) == True):
-                                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultadof,
-                                               round(valorf, 2), wins, losses)
-                            else:
-                                gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultadof,
-                                               round(valorf, 2),
-                                               wins, losses)
-                            # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
-                            # gravar(result, './balancos/'+nowD, 'json', 'a')
-                            break
+                # Se resultado for obtido
+                if resultado:
+                    if valor > 0:
+                        resultadof, valorf = 'WIN', valor
+                        print(f'RESULTADO: WIN / LUCRO: {round(valor, 2)}')
+                        if (resultadof == 'WIN'):
+                            wins += 1
                         else:
-                            resultadof, valorf = 'LOSS', valor
-                            print(f'RESULTADO: LOSS / LUCRO: {round(valor, 2)}')
-                            if (resultadof == 'WIN'):
-                                wins += 1
-                            else:
-                                losses += 1
-                            balancoFin = banca(api)
-                            # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
-                            # entrada
-                            if (arq_existe(filepath) == True):
-                                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultadof,
-                                               round(valorf, 2), wins, losses)
-                            else:
-                                gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultadof,
-                                               round(valorf, 2),
-                                               wins, losses)
-                            # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
-                            # gravar(result, './balancos/'+nowD, 'json', 'a')
-                            break
+                            losses += 1
+                        balancoFin = banca(api)
+                        # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
+                        # entrada
+                        if (arq_existe(filepath) == True):
+                            gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultadof,
+                                           round(valorf, 2), wins, losses)
+                        else:
+                            gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultadof,
+                                           round(valorf, 2),
+                                           wins, losses)
+                        # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
+                        # gravar(result, './balancos/'+nowD, 'json', 'a')
+                        break
+                    else:
+                        resultadof, valorf = 'LOSS', valor
+                        print(f'RESULTADO: LOSS / LUCRO: {round(valor, 2)}')
+                        if (resultadof == 'WIN'):
+                            wins += 1
+                        else:
+                            losses += 1
+                        balancoFin = banca(api)
+                        # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
+                        # entrada
+                        if (arq_existe(filepath) == True):
+                            gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultadof,
+                                           round(valorf, 2), wins, losses)
+                        else:
+                            gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultadof,
+                                           round(valorf, 2),
+                                           wins, losses)
+                        # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
+                        # gravar(result, './balancos/'+nowD, 'json', 'a')
+                        break
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
 
@@ -382,3 +382,36 @@ def checar_ativo_aberto(api,ativo,tipoAtivo):
 # Checa se o ativo em questão tem a opção necessária de periodoVela
 def checar_periodo(api):
     print ('teste')
+
+# Retorna o payout do ativo definido
+def payout(api,ativo,tipoAtivo,timeframe = 1):
+    data = api.get_all_profit()
+
+    if tipoAtivo == 'BINARY':
+        return int(data[ativo]['turbo']*100)
+
+    elif tipoAtivo == 'DIGITAL':
+        api.subscribe_strike_list(ativo,timeframe)
+        while True:
+            data = api.get_digital_current_profit(ativo,timeframe)
+            if data != False:
+                data = int(data)
+                break
+            time.sleep(1)
+        api.unsubscribe_strike_list(ativo,timeframe)
+        return data
+    else:
+        print('ERRO_TIPOATIVO:VALORES ACEITOS SÃO "BINARY" e "TURBO"')
+
+# Retorna o valor do martingale
+def martingale(valorEnt, valorRes, payout):
+    lucroEsp = valorEnt*(payout/100)
+    payout = payout/100
+    # print(lucroEsp)
+    aux = valorEnt
+    while True:
+        if round(aux*payout,2) > round(abs(valorRes) + lucroEsp,2):
+            varlorFin = round(aux,2)
+            break
+        aux += 0.01
+    return varlorFin
