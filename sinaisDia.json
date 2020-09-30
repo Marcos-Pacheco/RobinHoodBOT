@@ -195,8 +195,23 @@
       "ENTRADA": "PUT"
    },
    "SINAL40": {
-      "HORA": "16:15",
+      "HORA": "20:10",
       "ATIVO": "EURGBP",
+      "ENTRADA": "CALL"
+   },
+   "SINAL41": {
+      "HORA": "21:40",
+      "ATIVO": "EURUSD",
+      "ENTRADA": "CALL"
+   },
+   "SINAL42": {
+      "HORA": "21:50",
+      "ATIVO": "EURUSD",
+      "ENTRADA": "CALL"
+   },
+   "SINAL43": {
+      "HORA": "22:00",
+      "ATIVO": "EURUSD",
       "ENTRADA": "CALL"
    }
 }

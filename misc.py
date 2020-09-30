@@ -137,49 +137,12 @@ def executar_agenda(horaParada, dataExec):
 # Código para fazer entrada. valor = valor da entrada; ativo = qual ativo Ex.: 'EURUSD'; tipoAtivo = binária ou digital
 # e tipoEntrada = 'CALL' ou 'PUT', horaEntrada = horário de entrada tratado, tempoVela = o timeframe do gráfico
 # 1/5/15...; filtrar = boolean
-def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
-    # Verifica o tipo de ativo, se binárias ou digitais
-    result = {}
-    # Valores adicionais a serem gravados ao final
-    now = datetime.datetime.now()
-    nowH = now.strftime('%H:%M')
-    nowD = now.strftime('%d-%m-%y')
-    filepath = './balancos/'+nowD+'.json'
-    wins = 0
-    losses = 0
-    balancoIni = banca(api)
-
-    # Checa se o arquivo contento contador de wins/losses existe, se sim adicona os valores respectivos as variaveis
-    if (arq_existe(filepath)):
-        data = json.loads(ler(filepath))
-        wins = int(data['BALANCO']['WINS'])
-        losses = int(data['BALANCO']['LOSSES'])
-
+def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
     if (tipoAtivo == 'BINARY'):
 
         # Se a entrada no tipoEntrada é valida
         if (tipoEntrada == 'CALL' or tipoEntrada == 'PUT'):
-            # Decide se a entrada deve ser filtrada por indicadores ou não
-            if (filtrar == True):
-                # Checa se o ativo está aberto em DIGITAL, se não, tenta fazer a operação em BINÁRIO
-                statusAtivo = checar_ativo_aberto(api,ativo,tipoAtivo)
-                if (statusAtivo == False):
-                    # Define que a entrada só será realizada caso a tendência esteja de acordo
-                    if (tendencia_2(api, ativo, 30, 200) == tipoEntrada):
-                        entrar(api,valor,ativo,'DIGITAL',tipoEntrada,tempoVela,True)
-                        # status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
-                    else:
-                        print('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
-                        return None
-                else:
-                    # Define que a entrada só será realizada caso a tendência esteja de acordo
-                    if (tendencia_2(api,ativo,30,200) == tipoEntrada):
-                        status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
-                    else:
-                        print('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
-                        return None
-            else:
-                status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
+            status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
 
             # Se a entrada teve sucesso
             if status:
@@ -191,24 +154,8 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
                     resultado, valorf = 'NONE', resultop
                 else:
                     resultado, valorf = 'WIN', resultop
-                print(f'RESULTADO: {resultado} / LUCRO: {round(valorf, 2)}')
-                # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultado, 'VALOR': round(valor, 2)}
-                # gravar(result,'./balancos/'+nowD,'json','a')
-
-                # Checa se o resultado foi WIN ou LOSS para adicionar ao contador
-                if (resultado == 'WIN'):
-                    wins += 1
-                else:
-                    losses += 1
-                balancoFin = banca(api)
-
-                # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
-                # entrada
-                if (arq_existe(filepath) == True):
-                    gravar_balanco(filepath,balancoFin,nowH,nowD,ativo,tipoAtivo,resultado,round(valorf,2),wins,losses)
-                else:
-                    gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultado, round(valorf, 2),
-                                   wins, losses)
+                # print(f'RESULTADO: {resultado} / LUCRO: {round(valorf, 2)}')
+                return (resultado, round(valorf,2))
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
 
@@ -217,27 +164,7 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
         id = ''
         # Se a entrada no tipoEntrada é valida
         if (tipoEntrada == 'CALL' or tipoEntrada == 'PUT'):
-            # Decide se a entrada deve ser filtrada por indicadores ou não
-            if (filtrar == True):
-                # Checa se o ativo está aberto em DIGITAL, se não, tenta fazer a operação em BINÁRIO
-                statusAtivo = checar_ativo_aberto(api, ativo, tipoAtivo)
-                if (statusAtivo == False):
-                    # Define que a entrada só será realizada caso a tendência esteja de acordo
-                    if (tendencia_2(api, ativo, 30, 200) == tipoEntrada):
-                        entrar(api, valor, ativo, 'BINARY', tipoEntrada, tempoVela, True)
-                        # status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
-                    else:
-                        print ('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
-                        return None
-                else:
-                    # Define que a entrada só será realizada caso a tendência esteja de acordo
-                    if (tendencia_2(api, ativo, 30, 200) == tipoEntrada):
-                        id = api.buy_digital_spot(ativo, valor, tipoEntrada, tempoVela)
-                    else:
-                        print ('ENTRADA ABORTADA: CONTRA TENDÊNCIA.')
-                        return None
-            else:
-                id = api.buy_digital_spot(ativo, valor, tipoEntrada, tempoVela)
+            id = api.buy_digital_spot(ativo, valor, tipoEntrada, tempoVela)
 
         # Checa se a entrada deu certo
         if isinstance(id, tuple):
@@ -250,44 +177,12 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela, filtrar=False):
                 if resultado:
                     if valor > 0:
                         resultadof, valorf = 'WIN', valor
-                        print(f'RESULTADO: WIN / LUCRO: {round(valor, 2)}')
-                        if (resultadof == 'WIN'):
-                            wins += 1
-                        else:
-                            losses += 1
-                        balancoFin = banca(api)
-                        # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
-                        # entrada
-                        if (arq_existe(filepath) == True):
-                            gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultadof,
-                                           round(valorf, 2), wins, losses)
-                        else:
-                            gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultadof,
-                                           round(valorf, 2),
-                                           wins, losses)
-                        # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
-                        # gravar(result, './balancos/'+nowD, 'json', 'a')
-                        break
+                        # print(f'RESULTADO: WIN / LUCRO: {round(valor, 2)}')
+                        return (resultadof,round(valorf,2))
                     else:
                         resultadof, valorf = 'LOSS', valor
-                        print(f'RESULTADO: LOSS / LUCRO: {round(valor, 2)}')
-                        if (resultadof == 'WIN'):
-                            wins += 1
-                        else:
-                            losses += 1
-                        balancoFin = banca(api)
-                        # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer
-                        # entrada
-                        if (arq_existe(filepath) == True):
-                            gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultadof,
-                                           round(valorf, 2), wins, losses)
-                        else:
-                            gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultadof,
-                                           round(valorf, 2),
-                                           wins, losses)
-                        # result = {'HORARIO': nowH, 'ATIVO': ativo, 'RESULTADO': resultadof, 'VALOR': valorf}
-                        # gravar(result, './balancos/'+nowD, 'json', 'a')
-                        break
+                        # print(f'RESULTADO: LOSS / LUCRO: {round(valor, 2)}')
+                        return (resultadof, round(valorf, 2))
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
 
