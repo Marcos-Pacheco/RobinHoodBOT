@@ -16,7 +16,6 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
     # Carrega o valor da entrada baseada na banca e na porcentagem definida
     valor = round(float(banca(api)),2)
     valor = valor*0.00012
-    # valor = 1
     
     # VALORES #
     
@@ -64,21 +63,20 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
         # Realiza a operação de compra caso os filtros estejam de acordo
         if tend == tipoEntrada:
             resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
+            print('\n')
             print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
                   f' {lucro}')
-            print('\n')
         else:
-            print (errTend)
             print('\n')
+            print (errTend)
 
     else:
         resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
-        print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO: {lucro}')
         print('\n')
+        print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO: {lucro}')
 
     # Se gale == True, procede com martingale
     if gale:
-
         # Carrega payout do ativo
         payoutvar = payout(api, ativo, tipoAtivo)
 
@@ -90,19 +88,15 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
             gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
 
             # Executar martingale
+            print('\n')
             print ('EXECUTANDO MARTINGALE . . .')
-            print ('\n')
             galevar = martingale(valor, lucro, payoutvar)
 
             # Novos resultados que serão gravados no bloco de gravação abaixo
             resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
+            print('\n')
             print(
                 f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO: {lucro}')
-            print('\n')
-            if resultado == 'WIN':
-                wins += 1
-            else:
-                losses += 1
 
     # GRAVAR RESULTADOS
 
@@ -135,14 +129,16 @@ def trader_bot_sinais(api):
         # Verifica se valor é a maior hora de todos os sinais, atibuindo o maior valor à horaFinal
         if (j['HORA'] > maiorH):
             maiorH = j['HORA']
+
         # dia padrão de execução é o dia atual
         nowD = now.strftime('%d-%m-%y')
-
         # Caso seja necessário definir outro valor, como por exemplo o  dia seguinte
-        # nowD = '29-09-20'
+        # nowD = '30-09-20'
+
         # Verifica se o sinal em questão ainda não passou do tempo, se não, realiza o agendamento
         if (j['HORA'] > nowH):
-            agendar(formatar_hora_entrada(j['HORA'], 4), gerir_entrada, api, j['ATIVO'], j['ENTRADA'],True, True)
+            agendar(formatar_hora_entrada(j['HORA'], 4), gerir_entrada, api, j['ATIVO'], j['ENTRADA'], True, True)
+            
     horaFinal = maiorH
     # Adiciona a agenda jobs de reconnect a cada 10 min
     schedule.every(10).minutes.do(connect.login,True)
@@ -151,49 +147,43 @@ def trader_bot_sinais(api):
 
 # Preencher com os sinais no formato a seguir
 valor = formatar_sinais(
-"""00:05,EURUSD,PUT
-00:40,EURUSD,PUT
-01:35,AUDJPY,PUT
-02:20,AUDJPY,CALL
-04:30,USDJPY,PUT
-05:05,EURGBP,CALL
-06:30,AUDCAD,PUT
-07:25,USDJPY,PUT
-07:45,EURUSD,CALL
-08:15,USDCHF,CALL
-08:40,EURUSD,PUT
-09:05,AUDJPY,PUT
-09:20,GBPNZD,PUT
-10:05,GBPAUD,PUT
-10:40,EURGBP,PUT
-11:05,GBPNZD,CALL
-11:30,GBPAUD,CALL
-12:15,USDJPY,CALL
-12:30,AUDJPY,PUT
-13:05,AUDUSD,CALL
-13:35,EURGBP,PUT
-14:10,GBPAUD,PUT
-14:35,EURUSD,CALL
-15:35,GBPJPY,PUT
-15:55,EURUSD,PUT
-16:35,EURUSD,CALL
-00:00,EURUSD,CALL
-02:15,USDJPY,PUT
-04:15,AUDJPY,PUT
-06:15,EURGBP,CALL
+"""00:25,EURJPY,PUT
+02:55,GBPNZD,CALL
+03:25,USDJPY,PUT
+04:10,EURAUD,PUT
+04:45,EURUSD,PUT
+05:45,USDCHF,PUT
+06:05,AUDCAD,CALL
+07:35,EURJPY,PUT
+07:50,GBPAUD,CALL
+08:30,EURAUD,PUT
+08:50,GBPCAD,CALL
+09:00,GBPJPY,PUT
+09:50,CADCHF,PUT
+10:20,EURJPY,CALL
+11:00,GBPNZD,CALL
+11:30,GBPUSD,PUT
+11:50,EURUSD,PUT
+12:20,EURJPY,CALL
+12:55,GBPJPY,CALL
+13:10,EURJPY,PUT
+13:25,GBPNZD,CALL
+14:05,EURAUD,CALL
+14:45,EURJPY,CALL
+15:40,EURCAD,PUT
+16:10,EURUSD,CALL
+00:00,USDJPY,PUT
+03:00,EURUSD,PUT
+04:00,USDJPY,PUT
+05:00,GBPJPY,CALL
 07:45,GBPCAD,CALL
-08:15,EURUSD,PUT
-10:00,AUDJPY,CALL
-11:30,USDCAD,CALL
-12:00,AUDJPY,CALL
-12:45,GBPAUD,PUT
-13:15,NZDUSD,PUT
-14:00,EURGBP,CALL
-15:30,EURJPY,PUT
-20:10,EURGBP,CALL
-21:40,EURUSD,CALL
-21:50,EURUSD,CALL
-22:00,EURUSD,CALL"""
+08:15,USDCHF,CALL
+09:15,USDCAD,CALL
+10:00,GBPNZD,PUT
+11:30,USDJPY,CALL
+12:00,USDCAD,PUT
+12:45,EURCAD,PUT
+15:00,GBPCAD,PUT"""
 )
 
 # Grava os sinais formatados em json para utilização no resto do código

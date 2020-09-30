@@ -147,11 +147,14 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
             # Se a entrada teve sucesso
             if status:
                 resultop = (api.check_win_v3(id))  # retorna o valor ganho ou perdido
-                # Verifica se o valor retornado é igual ao negativo do valor de entrada, indicado loss
-                if (resultop == (float(valor) * -1)):
+                # Verifica se o valor retornado é igual ao negativo do valor de entrada, indicando loss
+                # print(valor)
+                # print(round(float(valor) * -1),2)
+                # print(resultop)
+                if resultop == (round(float(valor)*-1,2)):
                     resultado, valorf = 'LOSS', resultop
                 elif (resultop == float(0)):
-                    resultado, valorf = 'NONE', resultop
+                    resultado, valorf = None, resultop
                 else:
                     resultado, valorf = 'WIN', resultop
                 # print(f'RESULTADO: {resultado} / LUCRO: {round(valorf, 2)}')
@@ -283,7 +286,12 @@ def payout(api,ativo,tipoAtivo,timeframe = 1):
     data = api.get_all_profit()
 
     if tipoAtivo == 'BINARY':
-        return int(data[ativo]['turbo']*100)
+        pay = data[ativo]['turbo']
+        if isinstance(pay, float):
+            return (int(data[ativo]['turbo'] * 100))
+        else:
+            print (f'ERRO_PAYOUT: ATIVO {ativo} PARA {tipoAtivo} NÃO ENCONTRADO.')
+            return None
 
     elif tipoAtivo == 'DIGITAL':
         api.subscribe_strike_list(ativo,timeframe)
@@ -297,11 +305,17 @@ def payout(api,ativo,tipoAtivo,timeframe = 1):
         return data
     else:
         print('ERRO_TIPOATIVO:VALORES ACEITOS SÃO "BINARY" e "TURBO"')
+        return None
 
 # Retorna o valor do martingale
 def martingale(valorEnt, valorRes, payout):
     lucroEsp = valorEnt*(payout/100)
-    payout = payout/100
+    if payout == None:
+        print (f'ERRO_MARTINGALE: PAYOUT = {payout}')
+        return None
+    else:
+        payout = payout/100
+
     # print(lucroEsp)
     aux = valorEnt
     while True:
