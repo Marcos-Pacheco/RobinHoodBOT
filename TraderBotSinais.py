@@ -53,27 +53,30 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
             tipoAtivo = 'BINARY'
 
     # FILTROS
+
+    # Valor padrão para tupla. Medida preventiva para erro de 'variável não definida'
+    resultado, lucro = None, None
     if filtrar:
         # Checa a tendência
         tend = tendencia_2(api,ativo,30,200)
 
-        # Valor padrão para tupla. Medida preventiva para erro de 'variável não definida'
-        resultado, lucro = None, None
-
         # Realiza a operação de compra caso os filtros estejam de acordo
         if tend == tipoEntrada:
             resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
-            print('\n')
-            print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                  f' {lucro}')
+
+            # Verifica se a entrada teve sucesso
+            if (lucro != None):
+                print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                      f' {lucro}')
         else:
             print('\n')
             print (errTend)
 
     else:
-        resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
-        print('\n')
-        print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO: {lucro}')
+        # Verifica se a entrada teve sucesso
+        if (lucro != None):
+            resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
+            print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO: {lucro}')
 
     # Se gale == True, procede com martingale
     if gale:
@@ -88,27 +91,25 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
             gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
 
             # Executar martingale
-            print('\n')
-            print ('EXECUTANDO MARTINGALE . . .')
             galevar = martingale(valor, lucro, payoutvar)
 
             # Novos resultados que serão gravados no bloco de gravação abaixo
             resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
-            print('\n')
             print(
-                f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO: {lucro}')
+                f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                f' {lucro} || GALE')
 
     # GRAVAR RESULTADOS
 
     # Adiciona 1 ao contador de win ou loss
     if (resultado == 'WIN'):
         wins += 1
-    else:
+    elif resultado == 'LOSS':
         losses += 1
     balancoFin = banca(api)
 
     # Grava somente se o resultado for diferente de None
-    if (resultado != None):
+    if (lucro != None):
         # Verifica se é a primeira gravação do arquivo, caso sim, grava o valor do balanco antes de qualquer entrada
         if arq_existe(filepath):
             gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
@@ -147,43 +148,8 @@ def trader_bot_sinais(api):
 
 # Preencher com os sinais no formato a seguir
 valor = formatar_sinais(
-"""00:25,EURJPY,PUT
-02:55,GBPNZD,CALL
-03:25,USDJPY,PUT
-04:10,EURAUD,PUT
-04:45,EURUSD,PUT
-05:45,USDCHF,PUT
-06:05,AUDCAD,CALL
-07:35,EURJPY,PUT
-07:50,GBPAUD,CALL
-08:30,EURAUD,PUT
-08:50,GBPCAD,CALL
-09:00,GBPJPY,PUT
-09:50,CADCHF,PUT
-10:20,EURJPY,CALL
-11:00,GBPNZD,CALL
-11:30,GBPUSD,PUT
-11:50,EURUSD,PUT
-12:20,EURJPY,CALL
-12:55,GBPJPY,CALL
-13:10,EURJPY,PUT
-13:25,GBPNZD,CALL
-14:05,EURAUD,CALL
-14:45,EURJPY,CALL
-15:40,EURCAD,PUT
-16:10,EURUSD,CALL
-00:00,USDJPY,PUT
-03:00,EURUSD,PUT
-04:00,USDJPY,PUT
-05:00,GBPJPY,CALL
-07:45,GBPCAD,CALL
-08:15,USDCHF,CALL
-09:15,USDCAD,CALL
-10:00,GBPNZD,PUT
-11:30,USDJPY,CALL
-12:00,USDCAD,PUT
-12:45,EURCAD,PUT
-15:00,GBPCAD,PUT"""
+"""20:50,NZDUSD,CALL
+21:05,NZDUSD,CALL"""
 )
 
 # Grava os sinais formatados em json para utilização no resto do código

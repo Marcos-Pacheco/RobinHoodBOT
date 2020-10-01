@@ -1,5 +1,4 @@
-from iqoptionapi.stable_api import IQ_Option
-import logging, json, sys, time, connect
+import time
 from talib import abstract
 import numpy as np
 

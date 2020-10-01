@@ -1,7 +1,6 @@
 from datetime import datetime
 from dateutil import tz
-from indicadores import tendencia_2
-import json, schedule, connect, time, datetime
+import json, schedule, time, datetime
 
 # Converte o valor de timestamp para valor legível
 def timestamp_conv (t_value):
@@ -143,14 +142,10 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
         # Se a entrada no tipoEntrada é valida
         if (tipoEntrada == 'CALL' or tipoEntrada == 'PUT'):
             status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
-
             # Se a entrada teve sucesso
             if status:
                 resultop = (api.check_win_v3(id))  # retorna o valor ganho ou perdido
                 # Verifica se o valor retornado é igual ao negativo do valor de entrada, indicando loss
-                # print(valor)
-                # print(round(float(valor) * -1),2)
-                # print(resultop)
                 if resultop == (round(float(valor)*-1,2)):
                     resultado, valorf = 'LOSS', resultop
                 elif (resultop == float(0)):
@@ -159,8 +154,12 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                     resultado, valorf = 'WIN', resultop
                 # print(f'RESULTADO: {resultado} / LUCRO: {round(valorf, 2)}')
                 return (resultado, round(valorf,2))
+            elif id == "Cannot purchase an option (active is suspended)":
+                print (f'ERRO_ATIVO: NÃO FOI POSSÍVEL FAZER COMPRA, ATIVO {ativo} SUSPENSO.')
+                return None,None
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
+            return None, None
 
     # Verifica se tipoAtivo, se binárias ou digitais
     elif (tipoAtivo == 'DIGITAL'):
@@ -188,9 +187,11 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                         return (resultadof, round(valorf, 2))
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
+            return None, None
 
     else:
         print('ERRO_TIPO_ATIVO:\nDIGITE CORRETAMENTO O NOME DO ATIVO.')
+        return None, None
 
 # Retorna True se arquivo encontrado e False caso não
 def arq_existe(filepath):

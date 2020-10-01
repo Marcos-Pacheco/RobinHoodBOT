@@ -45,6 +45,7 @@ def login (reconnect=False):
                 if (reconnect == False):
                     dadosPer = perfil(login)
                     print (f"Conexão feita com Sucesso! \nSeja bem-vindo(a) {dadosPer['name']}!")
+                    print ('\n')
                 break
     else:
         if reason == error_network:
