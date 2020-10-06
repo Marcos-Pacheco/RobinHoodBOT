@@ -117,28 +117,34 @@ def formatar_hora_parada(horaSinalFinal,addMin):
 # Agenda o horário e qual ação será realizada
 def agendar(horario, nomeFuncao, *args):
     # Ex.: schedule.cada.tempo.fazer
-    schedule.every().day.at(horario).do(nomeFuncao, *args)
-
+    schedule.every().day.at(horario).do(nomeFuncao, *args).tag('trader_bot_sinais')
 # Executa a agenda. Usa var horaParada para terminar o loop infinito de execução
 def executar_agenda(horaParada, dataExec):
     while True:
         now = datetime.datetime.now()
         nowH = now.strftime('%H:%M')
         nowD = now.strftime('%d-%m-%y')
-        if (dataExec == nowD):
-            if (str(nowH) >= horaParada):
-                print ("Último sinal realizado.")
-                break
-            else:
-                schedule.run_pending()
-                time.sleep(0.5)
+        metaCheck = checar_meta_batida(nowD)
+        if  metaCheck == True:
+            print ('META BATIDA, ENCERRANDO.')
+            break
+        elif metaCheck == 'STPLS':
+            print ('STOP LOSS ATINGIDO, ENCERRANDO.')
+            break
+        else:
+            if (dataExec == nowD):
+                if (str(nowH) >= horaParada):
+                    print ("ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
+                    break
+                else:
+                    schedule.run_pending()
+                    time.sleep(0.5)
 
 # Código para fazer entrada. valor = valor da entrada; ativo = qual ativo Ex.: 'EURUSD'; tipoAtivo = binária ou digital
 # e tipoEntrada = 'CALL' ou 'PUT', horaEntrada = horário de entrada tratado, tempoVela = o timeframe do gráfico
 # 1/5/15...; filtrar = boolean
 def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
     if (tipoAtivo == 'BINARY'):
-
         # Se a entrada no tipoEntrada é valida
         if (tipoEntrada == 'CALL' or tipoEntrada == 'PUT'):
             status, id = api.buy(valor, ativo, tipoEntrada, tempoVela)
@@ -154,37 +160,42 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                     resultado, valorf = 'WIN', resultop
                 # print(f'RESULTADO: {resultado} / LUCRO: {round(valorf, 2)}')
                 return (resultado, round(valorf,2))
-            elif id == "Cannot purchase an option (active is suspended)":
-                print (f'ERRO_ATIVO: NÃO FOI POSSÍVEL FAZER COMPRA, ATIVO {ativo} SUSPENSO.')
-                return None,None
+            elif status == False:
+                print (id)
+                return None, None
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
             return None, None
 
     # Verifica se tipoAtivo, se binárias ou digitais
     elif (tipoAtivo == 'DIGITAL'):
-        id = ''
+        data = ''
         # Se a entrada no tipoEntrada é valida
         if (tipoEntrada == 'CALL' or tipoEntrada == 'PUT'):
-            id = api.buy_digital_spot(ativo, valor, tipoEntrada, tempoVela)
+            data = api.buy_digital_spot(ativo, valor, tipoEntrada, tempoVela)
 
-        # Checa se a entrada deu certo
-        if isinstance(id, tuple):
+        # Checa se houve entrada
+        if isinstance(data, tuple):
+            status, id = data
 
-            # Loop para procurar o resultado, caso haja
-            while True:
-                resultado, valor = api.check_win_digital_v2(id[1])
+            # Checa qual foi o resultado da tentativa de entrada
+            if status:
+                # Loop para procurar o resultado, caso haja
+                while True:
+                    resultado, valor = api.check_win_digital_v2(id)
 
-                # Se resultado for obtido
-                if resultado:
-                    if valor > 0:
-                        resultadof, valorf = 'WIN', valor
-                        # print(f'RESULTADO: WIN / LUCRO: {round(valor, 2)}')
-                        return (resultadof,round(valorf,2))
-                    else:
-                        resultadof, valorf = 'LOSS', valor
-                        # print(f'RESULTADO: LOSS / LUCRO: {round(valor, 2)}')
-                        return (resultadof, round(valorf, 2))
+                    # Se resultado for obtido
+                    if resultado:
+                        if valor > 0:
+                            resultadof, valorf = 'WIN', valor
+                            # print(f'RESULTADO: WIN / LUCRO: {round(valor, 2)}')
+                            return (resultadof,round(valorf,2))
+                        else:
+                            resultadof, valorf = 'LOSS', valor
+                            # print(f'RESULTADO: LOSS / LUCRO: {round(valor, 2)}')
+                            return (resultadof, round(valorf, 2))
+            else:
+                print(id)
         else:
             print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
             return None, None
@@ -254,29 +265,33 @@ def gravar_balanco(filepath,balanco,horario,data,ativo,tipoAtivo,resultado,valor
 
 # Checa se o ativo em questão está aberto. Se sim retorna True, senão False
 def checar_ativo_aberto(api,ativo,tipoAtivo):
-    # dict com informações de ativos
-    dado = api.get_all_open_time()
-    # dict que receberá os binários ativos
-    binary = []
-    # dict que receberá os digitais ativos
-    digital = []
-
-    # Carrega todas as opções binárias abertas
-    for paridade in dado['turbo']:
-        if dado['turbo'][paridade]['open'] == True:
-            binary.append(paridade)
-
-    # Carrega todas as opções digitais abertas
-    for paridade in dado['digital']:
-        if dado['digital'][paridade]['open'] == True:
-            digital.append(paridade)
-    if (tipoAtivo == 'BINARY'):
-        return ativo in binary
-    elif (tipoAtivo == 'DIGITAL'):
-        return ativo in digital
+    try:
+        # dict com informações de ativos
+        dado = api.get_all_open_time()
+    except Exception as e:
+        print ('ERRO_CHECAR_ATIVO:',e)
     else:
-        'ERRO_CHECAR_ABERTO: VALOR EM TIPO ATIVO DEVE SER "BINARY" ou "DIGITAL".'
-        return None
+        # dict que receberá os binários ativos
+        binary = []
+        # dict que receberá os digitais ativos
+        digital = []
+
+        # Carrega todas as opções binárias abertas
+        for paridade in dado['turbo']:
+            if dado['turbo'][paridade]['open'] == True:
+                binary.append(paridade)
+
+        # Carrega todas as opções digitais abertas
+        for paridade in dado['digital']:
+            if dado['digital'][paridade]['open'] == True:
+                digital.append(paridade)
+        if (tipoAtivo == 'BINARY'):
+            return ativo in binary
+        elif (tipoAtivo == 'DIGITAL'):
+            return ativo in digital
+        else:
+            'ERRO_CHECAR_ABERTO: VALOR EM TIPO ATIVO DEVE SER "BINARY" ou "DIGITAL".'
+            return None
 
 # Checa se o ativo em questão tem a opção necessária de periodoVela
 def checar_periodo(api):
@@ -325,3 +340,31 @@ def martingale(valorEnt, valorRes, payout):
             break
         aux += 0.01
     return varlorFin
+
+# Retorna True se a meta foi batida, False se ainda não e 'STPLS' se stop loss atingido
+def checar_meta_batida(date,percent=0.02):
+    filepath = './balancos/' + date + '.json'
+    checkFile = arq_existe(filepath)
+    if checkFile:
+        filedata = json.loads(ler(filepath))
+        varBancaIni = filedata['BALANCO']['BANCA_INICIO']
+        varBancaFin = filedata['BALANCO']['BANCA_FINAL']
+
+        meta = round(varBancaIni + (varBancaIni*(percent/100)),2)
+        deltaPercent = abs(round((varBancaFin/varBancaIni-1)*100,2))
+
+        # print (meta)
+
+        if varBancaFin > varBancaIni and deltaPercent >= percent:
+            # print (f'Meta de 0,02% batida para dia {date}.')
+            return True
+        elif varBancaFin < varBancaIni and deltaPercent >= percent:
+            # print (f'STOP LOSS')
+            return 'STPLS'
+        else:
+            # print (f'Meta de {meta} ainda não alcançada')
+            return False
+
+    else:
+        # Se o arquivo ainda não existir, prosseguir com o código
+        return False

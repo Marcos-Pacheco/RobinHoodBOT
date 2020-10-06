@@ -18,10 +18,6 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
     valor = valor*0.00012
     
     # VALORES #
-    
-    # Erros
-    errTend = "ENTRADA ABORTADA: CONTRA TENDÊNCIA."
-    # Erros
 
     # Valores adicionais a serem gravados ao final #
 
@@ -34,6 +30,18 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
     balancoIni = banca(api)
 
     # Valores adicionais a serem gravados ao final #
+
+    # Erros
+
+    errTend = f'HORARIO {nowH} | ENTRADA "{tipoEntrada}" PARA "{ativo}" TIPO "{tipoAtivo}" ABORTADA: CONTRA TENDÊNCIA.'
+
+    # Erros
+
+    # STATUS META #
+
+    statusMeta = checar_meta_batida(nowD)
+
+    # STATUS META #
 
     # Checa se o arquivo contento contador de wins/losses existe, se sim adicona os valores respectivos as variaveis
     if (arq_existe(filepath)):
@@ -56,35 +64,47 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
 
     # Valor padrão para tupla. Medida preventiva para erro de 'variável não definida'
     resultado, lucro = None, None
+
     if filtrar:
         # Checa a tendência
         tend = tendencia_2(api,ativo,30,200)
 
         # Realiza a operação de compra caso os filtros estejam de acordo
         if tend == tipoEntrada:
-            resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
-
             # Verifica se a entrada teve sucesso
-            if (lucro != None):
+            try:
+                resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
+            except TypeError as e:
+                print('ERRO_ENTRADA:', e)
+            except Exception as e:
+                print('ERRO_INDEFINIDO:', e)
+            else:
                 print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
                       f' {lucro}')
+
         else:
-            print('\n')
             print (errTend)
 
     else:
         # Verifica se a entrada teve sucesso
-        if (lucro != None):
+        try:
             resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
-            print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO: {lucro}')
+        except TypeError as e:
+            print('ERRO_ENTRADA:', e)
+        except Exception as e:
+            print('ERRO_INDEFINIDO:', e)
+        else:
+            print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                  f' {lucro}')
+
 
     # Se gale == True, procede com martingale
     if gale:
         # Carrega payout do ativo
         payoutvar = payout(api, ativo, tipoAtivo)
 
-        # Checa se o resultado foi LOSS e executa o martingale
-        if resultado == "LOSS":
+        # Checa se o resultado foi LOSS e se o calculo de payout foi executado com sucesso, se sim executa o martingale
+        if resultado == "LOSS" and payoutvar != None:
             losses += 1
             # Gravar resultado da primeira entrada que deu loss
             balancoFin = banca(api)
@@ -93,11 +113,17 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
             # Executar martingale
             galevar = martingale(valor, lucro, payoutvar)
 
-            # Novos resultados que serão gravados no bloco de gravação abaixo
-            resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
-            print(
-                f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                f' {lucro} || GALE')
+            # Verifica se a entrada teve sucesso
+            try:
+                # Novos resultados que serão gravados no bloco de gravação abaixo
+                resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
+            except TypeError as e:
+                print('ERRO_ENTRADA:', e)
+            except Exception as e:
+                print('ERRO_INDEFINIDO:', e)
+            else:
+                print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                      f' {lucro}')
 
     # GRAVAR RESULTADOS
 
@@ -142,14 +168,37 @@ def trader_bot_sinais(api):
             
     horaFinal = maiorH
     # Adiciona a agenda jobs de reconnect a cada 10 min
-    schedule.every(10).minutes.do(connect.login,True)
+    schedule.every(10).minutes.do(connect.login,True).tag('trader_bot_sinais')
     executar_agenda(formatar_hora_parada(horaFinal, 6),nowD)
 
 
 # Preencher com os sinais no formato a seguir
 valor = formatar_sinais(
-"""20:50,NZDUSD,CALL
-21:05,NZDUSD,CALL"""
+"""00:25,AUDJPY,PUT
+02:25,EURGBP,CALL
+03:50,GBPNZD,CALL
+04:35,GBPJPY,PUT
+05:20,GBPAUD,CALL
+05:55,GBPJPY,CALL
+06:25,AUDJPY,PUT
+07:05,GBPAUD,CALL
+07:35,GBPNZD,CALL
+08:15,GBPCAD,PUT
+09:20,GBPNZD,PUT
+09:45,AUDJPY,PUT
+10:15,GBPAUD,CALL
+10:50,EURUSD,PUT
+11:30,EURJPY,PUT
+11:40,AUDUSD,CALL
+12:20,EURJPY,CALL
+12:50,EURGBP,PUT
+13:15,EURUSD,CALL
+13:35,AUDJPY,CALL
+13:55,GBPJPY,PUT
+14:25,EURGBP,CALL
+14:50,GBPNZD,PUT
+15:20,EURAUD,PUT
+16:20,EURJPY,PUT"""
 )
 
 # Grava os sinais formatados em json para utilização no resto do código
