@@ -79,8 +79,9 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
             except Exception as e:
                 print('ERRO_INDEFINIDO:', e)
             else:
-                print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                      f' {lucro}')
+                if lucro != None:
+                    print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                          f' {lucro}')
 
         else:
             print (errTend)
@@ -94,8 +95,9 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
         except Exception as e:
             print('ERRO_INDEFINIDO:', e)
         else:
-            print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                  f' {lucro}')
+            if lucro != None:
+                print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                      f' {lucro}')
 
 
     # Se gale == True, procede com martingale
@@ -122,8 +124,9 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
             except Exception as e:
                 print('ERRO_INDEFINIDO:', e)
             else:
-                print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                      f' {lucro}')
+                if lucro != None:
+                    print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                          f' {lucro}')
 
     # GRAVAR RESULTADOS
 
@@ -168,38 +171,23 @@ def trader_bot_sinais(api):
             
     horaFinal = maiorH
     # Adiciona a agenda jobs de reconnect a cada 10 min
-    schedule.every(10).minutes.do(connect.login,True).tag('trader_bot_sinais')
+    schedule.every(10).minutes.do(connect.login,True)
     executar_agenda(formatar_hora_parada(horaFinal, 6),nowD)
 
-
-# Preencher com os sinais no formato a seguir
-valor = formatar_sinais(
-"""00:25,AUDJPY,PUT
-02:25,EURGBP,CALL
-03:50,GBPNZD,CALL
-04:35,GBPJPY,PUT
-05:20,GBPAUD,CALL
-05:55,GBPJPY,CALL
-06:25,AUDJPY,PUT
-07:05,GBPAUD,CALL
-07:35,GBPNZD,CALL
-08:15,GBPCAD,PUT
-09:20,GBPNZD,PUT
-09:45,AUDJPY,PUT
-10:15,GBPAUD,CALL
-10:50,EURUSD,PUT
-11:30,EURJPY,PUT
-11:40,AUDUSD,CALL
-12:20,EURJPY,CALL
-12:50,EURGBP,PUT
-13:15,EURUSD,CALL
-13:35,AUDJPY,CALL
-13:55,GBPJPY,PUT
-14:25,EURGBP,CALL
-14:50,GBPNZD,PUT
-15:20,EURAUD,PUT
-16:20,EURJPY,PUT"""
-)
+# Entrar com os sinais a serem uzados no código
+# Formato exemplo: 00:40,USDJPY,CALL
+valor = []
+linha = []
+linhas = []
+print ('ENTRE COM A LISTA DE SINAIS ABAIXO: \n')
+while True:
+    linha = input()
+    if linha:
+        linhas.append(linha)
+    else:
+        break
+valor = formatar_sinais('\n'.join(linhas))
+# valor = (str(input('ENTRE COM A LISTA DE SINAIS ABAIXO: \n')))
 
 # Grava os sinais formatados em json para utilização no resto do código
 gravar(valor,'sinaisDia','json','w')

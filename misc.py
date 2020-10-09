@@ -117,7 +117,8 @@ def formatar_hora_parada(horaSinalFinal,addMin):
 # Agenda o horário e qual ação será realizada
 def agendar(horario, nomeFuncao, *args):
     # Ex.: schedule.cada.tempo.fazer
-    schedule.every().day.at(horario).do(nomeFuncao, *args).tag('trader_bot_sinais')
+    schedule.every().day.at(horario).do(nomeFuncao, *args)
+
 # Executa a agenda. Usa var horaParada para terminar o loop infinito de execução
 def executar_agenda(horaParada, dataExec):
     while True:
