@@ -1,3 +1,10 @@
+# author: Marcos Pachêco
+# version: 1.0 alpha
+# maintener: Marcos Pachêco
+# email: marcos.hr.pacheco@gmail.com
+# status: Production
+
+# Imports
 from datetime import datetime
 from dateutil import tz
 import json, schedule, time, datetime
@@ -127,15 +134,15 @@ def executar_agenda(horaParada, dataExec):
         nowD = now.strftime('%d-%m-%y')
         metaCheck = checar_meta_batida(nowD)
         if  metaCheck == True:
-            print ('META BATIDA, ENCERRANDO.')
+            print (f'[!] {nowH} - META BATIDA, ENCERRANDO.')
             break
         elif metaCheck == 'STPLS':
-            print ('STOP LOSS ATINGIDO, ENCERRANDO.')
+            print (f'[!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.')
             break
         else:
             if (dataExec == nowD):
                 if (str(nowH) >= horaParada):
-                    print ("ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
+                    print (f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
                     break
                 else:
                     schedule.run_pending()
@@ -369,3 +376,8 @@ def checar_meta_batida(date,percent=0.02):
     else:
         # Se o arquivo ainda não existir, prosseguir com o código
         return False
+
+def menssagem(hour,err_nome,*args):
+    erros = {
+        'ERR_<NOME>': '<RETORNA>'
+    }

@@ -1,6 +1,6 @@
 {
-  "usuario": {
-    "email": "seuemail",
-    "senha": "suasenha"
+  "USUARIO": {
+    "EMAIL": "seu email",
+    "SENHA": "sua senha"
   }
 }

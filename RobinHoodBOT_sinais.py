@@ -1,6 +1,13 @@
+# author: Marcos Pachêco
+# version: 1.0 alpha
+# maintener: Marcos Pachêco
+# email: marcos.hr.pacheco@gmail.com
+# status: Production
+
+# Imports
 from misc import *
 from indicadores import *
-import connect, json
+import connect, json, shutil
 
 # Geri as entradas, passando-as por filtros primeiramente
 def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
@@ -33,7 +40,7 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
 
     # Erros
 
-    errTend = f'HORARIO {nowH} | ENTRADA "{tipoEntrada}" PARA "{ativo}" TIPO "{tipoAtivo}" ABORTADA: CONTRA TENDÊNCIA.'
+    errTend = f'[!] {nowH} - ENTRADA "{tipoEntrada}" PARA "{ativo}" TIPO "{tipoAtivo}" ABORTADA: CONTRA TENDÊNCIA.'
 
     # Erros
 
@@ -75,12 +82,12 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
             try:
                 resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
             except TypeError as e:
-                print('ERRO_ENTRADA:', e)
+                print(f'[!] {nowH} - ERRO_ENTRADA:', e)
             except Exception as e:
-                print('ERRO_INDEFINIDO:', e)
+                print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
             else:
                 if lucro != None:
-                    print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                    print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
                           f' {lucro}')
 
         else:
@@ -91,12 +98,12 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
         try:
             resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
         except TypeError as e:
-            print('ERRO_ENTRADA:', e)
+            print(f'[!] {nowH} - ERRO_ENTRADA:', e)
         except Exception as e:
-            print('ERRO_INDEFINIDO:', e)
+            print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
         else:
             if lucro != None:
-                print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
                       f' {lucro}')
 
 
@@ -120,12 +127,12 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
                 # Novos resultados que serão gravados no bloco de gravação abaixo
                 resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
             except TypeError as e:
-                print('ERRO_ENTRADA:', e)
+                print(f'[!] {nowH} - ERRO_ENTRADA:', e)
             except Exception as e:
-                print('ERRO_INDEFINIDO:', e)
+                print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
             else:
                 if lucro != None:
-                    print(f'HORARIO: {nowH} | ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                    print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
                           f' {lucro}')
 
     # GRAVAR RESULTADOS
@@ -145,41 +152,29 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
         else:
             gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
 
-# Realiza o carregamento de sinais,
-def trader_bot_sinais(api):
-    # Carrega a lista de sinais
-    sinais = json.loads(ler('sinaisDia.json'))
+# Mensagem inicial
+size = shutil.get_terminal_size().columns
+size1 = int((size/2)-(size/7))
+print (' '*size1,'+-+-+-+-+-+-+-+-+-+-+-+-+')
+print (' '*size1,'|R|o|b|i|n|H|o|o|d|B|O|T|')
+print (' '*size1,'+-+-+-+-+-+-+-+-+-+-+-+-+')
+print ('')
+print (' '*size1,'author: Marcos Pachêco')
+print (' '*size1,'version: 1.0 alpha')
+print (' '*size1,'maintener: Marcos Pachêco')
+print (' '*size1,'email: marcos.hr.pacheco@gmail.com')
+print (' '*size1,'status: Production')
+print ('_'*size)
 
-    # Iterador da lista do json da lista de sinais
-    maiorH = '00:00'
-    for i, j in sinais.items():
-        now = datetime.datetime.now()
-        nowH = now.strftime('%H:%M')
-
-        # Verifica se valor é a maior hora de todos os sinais, atibuindo o maior valor à horaFinal
-        if (j['HORA'] > maiorH):
-            maiorH = j['HORA']
-
-        # dia padrão de execução é o dia atual
-        nowD = now.strftime('%d-%m-%y')
-        # Caso seja necessário definir outro valor, como por exemplo o  dia seguinte
-        # nowD = '30-09-20'
-
-        # Verifica se o sinal em questão ainda não passou do tempo, se não, realiza o agendamento
-        if (j['HORA'] > nowH):
-            agendar(formatar_hora_entrada(j['HORA'], 4), gerir_entrada, api, j['ATIVO'], j['ENTRADA'], True, True)
-            
-    horaFinal = maiorH
-    # Adiciona a agenda jobs de reconnect a cada 10 min
-    schedule.every(10).minutes.do(connect.login,True)
-    executar_agenda(formatar_hora_parada(horaFinal, 6),nowD)
+now = datetime.datetime.now()
+nowH = str(now.strftime('%H:%M'))
 
 # Entrar com os sinais a serem uzados no código
 # Formato exemplo: 00:40,USDJPY,CALL
 valor = []
 linha = []
 linhas = []
-print ('ENTRE COM A LISTA DE SINAIS ABAIXO: \n')
+print (f'[!] {nowH} - ENTRE COM A LISTA DE SINAIS ABAIXO: \n')
 while True:
     linha = input()
     if linha:
@@ -187,7 +182,26 @@ while True:
     else:
         break
 valor = formatar_sinais('\n'.join(linhas))
-# valor = (str(input('ENTRE COM A LISTA DE SINAIS ABAIXO: \n')))
+
+# Inputs de opção de gerênciamento 
+opFiltro = str(input(f'[?] {nowH} - DESEJA FILTRAR ENTRADAS?(S/N)\n'))
+opGale = str(input(f'[?] {nowH} - DESEJA FAZER GALES?(S/N)\n'))
+
+# Transforma os valores str em booleanos
+if opFiltro == 'S' or opFiltro == 's':
+    opFiltro = True
+elif opFiltro == 'N' or opFiltro == 'n':
+    opFiltro = False
+else:
+    f'[!] {nowH} - ENTRE COM "S" PARA SIM OU "N" PARA NÃO.'
+
+# Transforma os valores str em booleanos
+if opGale == 'S' or opGale == 's':
+    opGale = True
+elif opGale == 'N' or opGale == 'n':
+    opGale = False
+else:
+    f'[!] {nowH} - ENTRE COM "S" PARA SIM OU "N" PARA NÃO.'
 
 # Grava os sinais formatados em json para utilização no resto do código
 gravar(valor,'sinaisDia','json','w')
@@ -195,6 +209,34 @@ gravar(valor,'sinaisDia','json','w')
 # Inicia a conexão e checa periodicamente para saber se ainda está aberta
 api = connect.login()
 
-# Inicia o bot
-trader_bot_sinais(api)
+####################
+### Inicia o bot ###
+####################
+
+# Carrega a lista de sinais
+sinais = json.loads(ler('sinaisDia.json'))
+
+# Iterador da lista do json da lista de sinais
+maiorH = '00:00'
+for i, j in sinais.items():
+    now = datetime.datetime.now()
+    nowH = now.strftime('%H:%M')
+
+    # Verifica se valor é a maior hora de todos os sinais, atibuindo o maior valor à horaFinal
+    if (j['HORA'] > maiorH):
+        maiorH = j['HORA']
+
+    # dia padrão de execução é o dia atual
+    nowD = now.strftime('%d-%m-%y')
+    # Caso seja necessário definir outro valor, como por exemplo o  dia seguinte
+    # nowD = '30-09-20'
+
+    # Verifica se o sinal em questão ainda não passou do tempo, se não, realiza o agendamento
+    if (j['HORA'] > nowH):
+        agendar(formatar_hora_entrada(j['HORA'], 4), gerir_entrada, api, j['ATIVO'], j['ENTRADA'], opFiltro, opGale)
+
+horaFinal = maiorH
+# Adiciona a agenda jobs de reconnect a cada 10 min
+schedule.every(10).minutes.do(connect.login, True)
+executar_agenda(formatar_hora_parada(horaFinal, 6), nowD)
 

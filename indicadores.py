@@ -1,3 +1,10 @@
+# author: Marcos Pachêco
+# version: 1.0 alpha
+# maintener: Marcos Pachêco
+# email: marcos.hr.pacheco@gmail.com
+# status: Production
+
+# Imports
 import time
 from talib import abstract
 import numpy as np

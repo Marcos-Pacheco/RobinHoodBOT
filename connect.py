@@ -1,5 +1,12 @@
+# author: Marcos Pachêco
+# version: 1.0 alpha
+# maintener: Marcos Pachêco
+# email: marcos.hr.pacheco@gmail.com
+# status: Production
+
+# Imports
 from iqoptionapi.stable_api import IQ_Option
-import time, json
+import time, json, datetime, shutil
 
 # Retorna os dados do perfil passado no objeto login
 def perfil (login):
@@ -24,15 +31,17 @@ def login (reconnect=False):
     error_network = "[Errno -2] Name or service not known"
     tipoCon = "PRACTICE"
     login = conn()
+    now = datetime.datetime.now()
+    nowH = str(now.strftime('%H:%M'))
 
     # Tentativas de reconexão
     check, reason = login.connect()
     if check:
         if (reconnect == False):
-            print ("Iniciando...")
+            print (f"[!] {nowH} - INICIANDO...")
         while True:
             if login.check_connect() == False:
-                print ("Erro ao conectar, tentando reconexão.")
+                print (f"[!] {nowH} - ERRO AO CONECTAR, TENTANDO RECONEXÃO")
                 check, reason = login.connect()
                 if check:
                     print(f"Reconexão bem sucessedida!")
@@ -44,7 +53,12 @@ def login (reconnect=False):
             else:
                 if (reconnect == False):
                     dadosPer = perfil(login)
-                    print (f"Conexão feita com Sucesso! \nSeja bem-vindo(a) {dadosPer['name']}!")
+                    userName = str(dadosPer['name'])
+                    userName = userName.upper()
+                    size = shutil.get_terminal_size().columns
+                    print (f"[!] {nowH} - CONEXÃO FEITA COM SUCESSO! \n[!] {nowH} - SEJA BEM-VINDO(A)"
+                           f" {userName}!")
+                    print('_'*size)
                     print ('\n')
                 break
     else:
