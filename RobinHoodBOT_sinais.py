@@ -10,7 +10,7 @@ from indicadores import *
 import connect, json, shutil
 
 # Geri as entradas, passando-as por filtros primeiramente
-def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
+def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=False):
     
     # VALORES #
 
@@ -22,7 +22,7 @@ def gerir_entrada(api,ativo,tipoEntrada, filtrar=False, gale=False):
     
     # Carrega o valor da entrada baseada na banca e na porcentagem definida
     valor = round(float(banca(api)),2)
-    valor = valor*0.00012
+    valor = round(valor*porcentEntrada,2)
     
     # VALORES #
 
@@ -184,8 +184,30 @@ while True:
 valor = formatar_sinais('\n'.join(linhas))
 
 # Inputs de opção de gerênciamento 
-opFiltro = str(input(f'[?] {nowH} - DESEJA FILTRAR ENTRADAS?(S/N)\n'))
-opGale = str(input(f'[?] {nowH} - DESEJA FAZER GALES?(S/N)\n'))
+opFiltro = str(input(f'[?] {nowH} - DESEJA FILTRAR ENTRADAS?(S/N) '))
+opGale = str(input(f'[?] {nowH} - DESEJA FAZER GALES?(S/N) '))
+porcentEntrada = input(f'[?] {nowH} - PORCENTAGEM DE CADA ENTRADA: ')
+takepft = input(f'[?] {nowH} - PORCENTAGEM DE TAKE PROFIT: ') # 0.02 padrão
+stoplss = input(f'[?] {nowH} - PORCENTAGEM DO STOP LOSS: ') # 0.02 padrão
+
+# tranforma os valores digitados em decimal
+porcentEntrada = float(porcentEntrada)
+porcentEntrada = porcentEntrada/100 # teste = 0.00012
+
+# tenta tranformar os valores em float caso valor digitado seja int
+# deixar vazio para operar sem take ou loss
+try:
+    takepft = float(takepft)
+    takepft = round(takepft/100,2)
+except:
+    takepft = ''
+
+try:
+    stoplss = float(stoplss)
+    stoplss= round(stoplss/100,2)
+except:
+    stoplss = ''
+
 
 # Transforma os valores str em booleanos
 if opFiltro == 'S' or opFiltro == 's':
@@ -233,10 +255,11 @@ for i, j in sinais.items():
 
     # Verifica se o sinal em questão ainda não passou do tempo, se não, realiza o agendamento
     if (j['HORA'] > nowH):
-        agendar(formatar_hora_entrada(j['HORA'], 4), gerir_entrada, api, j['ATIVO'], j['ENTRADA'], opFiltro, opGale)
+        agendar(formatar_hora_entrada(j['HORA'], 6), gerir_entrada, api, j['ATIVO'], j['ENTRADA'], porcentEntrada,
+                opFiltro, opGale)
 
 horaFinal = maiorH
 # Adiciona a agenda jobs de reconnect a cada 10 min
 schedule.every(10).minutes.do(connect.login, True)
-executar_agenda(formatar_hora_parada(horaFinal, 6), nowD)
+executar_agenda(formatar_hora_parada(horaFinal, 6), nowD, takepft, stoplss)
 

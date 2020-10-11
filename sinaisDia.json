@@ -1,127 +1,17 @@
 {
    "SINAL1": {
-      "HORA": "00:45",
-      "ATIVO": "USDCHF-OTC",
+      "HORA": "20:20",
+      "ATIVO": "EURGBP-OTC",
       "ENTRADA": "PUT"
    },
    "SINAL2": {
-      "HORA": "01:15",
+      "HORA": "20:25",
       "ATIVO": "NZDUSD-OTC",
       "ENTRADA": "PUT"
    },
    "SINAL3": {
-      "HORA": "02:15",
-      "ATIVO": "EURGBP-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL4": {
-      "HORA": "02:50",
-      "ATIVO": "AUDCAD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL5": {
-      "HORA": "03:15",
+      "HORA": "20:30",
       "ATIVO": "NZDUSD-OTC",
-      "ENTRADA": "CALL"
-   },
-   "SINAL6": {
-      "HORA": "04:35",
-      "ATIVO": "AUDCAD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL7": {
-      "HORA": "04:45",
-      "ATIVO": "NZDUSD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL8": {
-      "HORA": "05:20",
-      "ATIVO": "USDCHF-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL9": {
-      "HORA": "06:10",
-      "ATIVO": "GBPUSD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL10": {
-      "HORA": "06:30",
-      "ATIVO": "EURUSD-OTC",
-      "ENTRADA": "CALL"
-   },
-   "SINAL11": {
-      "HORA": "07:55",
-      "ATIVO": "GBPUSD-OTC",
-      "ENTRADA": "CALL"
-   },
-   "SINAL12": {
-      "HORA": "08:45",
-      "ATIVO": "USDCHF-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL13": {
-      "HORA": "09:35",
-      "ATIVO": "EURGBP-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL14": {
-      "HORA": "10:00",
-      "ATIVO": "EURUSD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL15": {
-      "HORA": "10:50",
-      "ATIVO": "EURUSD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL16": {
-      "HORA": "11:05",
-      "ATIVO": "GBPUSD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL17": {
-      "HORA": "11:25",
-      "ATIVO": "USDCHF-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL18": {
-      "HORA": "12:10",
-      "ATIVO": "AUDCAD-OTC",
-      "ENTRADA": "CALL"
-   },
-   "SINAL19": {
-      "HORA": "12:55",
-      "ATIVO": "USDCHF-OTC",
-      "ENTRADA": "CALL"
-   },
-   "SINAL20": {
-      "HORA": "13:05",
-      "ATIVO": "EURGBP-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL21": {
-      "HORA": "13:15",
-      "ATIVO": "NZDUSD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL22": {
-      "HORA": "14:50",
-      "ATIVO": "AUDCAD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL23": {
-      "HORA": "15:25",
-      "ATIVO": "USDCHF-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL24": {
-      "HORA": "15:45",
-      "ATIVO": "AUDCAD-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL25": {
-      "HORA": "16:15",
-      "ATIVO": "GBPUSD-OTC",
       "ENTRADA": "PUT"
    }
 }

@@ -127,26 +127,63 @@ def agendar(horario, nomeFuncao, *args):
     schedule.every().day.at(horario).do(nomeFuncao, *args)
 
 # Executa a agenda. Usa var horaParada para terminar o loop infinito de execução
-def executar_agenda(horaParada, dataExec):
+def executar_agenda(horaParada, dataExec, take, stop):
     while True:
         now = datetime.datetime.now()
         nowH = now.strftime('%H:%M')
         nowD = now.strftime('%d-%m-%y')
-        metaCheck = checar_meta_batida(nowD)
-        if  metaCheck == True:
-            print (f'[!] {nowH} - META BATIDA, ENCERRANDO.')
-            break
-        elif metaCheck == 'STPLS':
-            print (f'[!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.')
-            break
-        else:
-            if (dataExec == nowD):
+        if isinstance(take,float):
+            metaCheck = checar_meta_batida(nowD,take)
+        elif isinstance(stop,float):
+            metaCheck = checar_meta_batida(nowD, stop)
+        # Trabalha com stop e take
+        if isinstance(take,float) and isinstance(stop,float):
+            if metaCheck == True:
+                print (f'[!] {nowH} - META BATIDA, ENCERRANDO.')
+                break
+            elif metaCheck == 'STPLS':
+                print (f'[!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.')
+                break
+            elif (dataExec == nowD):
                 if (str(nowH) >= horaParada):
-                    print (f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
+                    print(f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
                     break
                 else:
                     schedule.run_pending()
                     time.sleep(0.5)
+
+        # Trabalha apenas com stop
+        elif isinstance(stop,float):
+            if metaCheck == 'STPLS':
+                print (f'[!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.')
+                break
+            elif (dataExec == nowD):
+                if (str(nowH) >= horaParada):
+                    print(f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
+                    break
+                else:
+                    schedule.run_pending()
+                    time.sleep(0.5)
+        # Trabalha apenas com take
+        elif isinstance(take,float):
+            if metaCheck == True:
+                print (f'[!] {nowH} - META BATIDA, ENCERRANDO.')
+                break
+            elif (dataExec == nowD):
+                if (str(nowH) >= horaParada):
+                    print(f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
+                    break
+                else:
+                    schedule.run_pending()
+                    time.sleep(0.5)
+
+        elif (dataExec == nowD):
+            if (str(nowH) >= horaParada):
+                print (f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
+                break
+            else:
+                schedule.run_pending()
+                time.sleep(0.5)
 
 # Código para fazer entrada. valor = valor da entrada; ativo = qual ativo Ex.: 'EURUSD'; tipoAtivo = binária ou digital
 # e tipoEntrada = 'CALL' ou 'PUT', horaEntrada = horário de entrada tratado, tempoVela = o timeframe do gráfico
@@ -357,7 +394,6 @@ def checar_meta_batida(date,percent=0.02):
         filedata = json.loads(ler(filepath))
         varBancaIni = filedata['BALANCO']['BANCA_INICIO']
         varBancaFin = filedata['BALANCO']['BANCA_FINAL']
-
         meta = round(varBancaIni + (varBancaIni*(percent/100)),2)
         deltaPercent = abs(round((varBancaFin/varBancaIni-1)*100,2))
 
