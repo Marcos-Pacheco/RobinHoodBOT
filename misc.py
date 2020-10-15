@@ -7,7 +7,8 @@
 # Imports
 from datetime import datetime
 from dateutil import tz
-import json, schedule, time, datetime
+from colorama import init, Fore, Back, Style
+import json, schedule, time, datetime, shutil
 
 # Converte o valor de timestamp para valor legível
 def timestamp_conv (t_value):
@@ -338,10 +339,6 @@ def checar_ativo_aberto(api,ativo,tipoAtivo):
             'ERRO_CHECAR_ABERTO: VALOR EM TIPO ATIVO DEVE SER "BINARY" ou "DIGITAL".'
             return None
 
-# Checa se o ativo em questão tem a opção necessária de periodoVela
-def checar_periodo(api):
-    print ('teste')
-
 # Retorna o payout do ativo definido
 def payout(api,ativo,tipoAtivo,timeframe = 1):
     data = api.get_all_profit()
@@ -413,7 +410,145 @@ def checar_meta_batida(date,percent=0.02):
         # Se o arquivo ainda não existir, prosseguir com o código
         return False
 
-def menssagem(hour,err_nome,*args):
-    erros = {
-        'ERR_<NOME>': '<RETORNA>'
+# Coleção de todos os outputs do código com tratamento de cores
+def menssagem(menName,*args):
+    ## COLORAMA CONFIGS ##
+    init(convert=True, autoreset=True)
+
+    ## DEFINIÇÃO DE VARS ##
+    userName = ativo = tipoEntrada = resultado = lucro = exceptError = tipoAtivo = payoutVar = None
+
+    # Coleta variáveis de *args
+    if menName == 'AV_CONEXAO_SUCESSO':
+        userName = args[0]
+
+    elif menName == 'AV_RESULTADO':
+        ativo = args[0]
+        tipoEntrada = args[1]
+        resultado = args[2]
+        lucro = args[3]
+
+    elif menName == 'ERR_CHECAR_ATIVO':
+        exceptError = args[0]
+
+    elif menName == 'ERR_PAYOUT':
+        ativo = args[0]
+        tipoAtivo = args[1]
+
+    elif menName == 'ERR_MARTINGALE':
+        payoutVar = args[0]
+
+    elif menName == 'ERR_TENDENCIA':
+        tipoEntrada = args[0]
+        ativo = args[1]
+        tipoAtivo = args[2]
+
+    elif menName == 'ERR_ENTRADA' or menName == 'ERR_INDEFINIDO':
+        exceptError = args[0]
+
+    # Pega o tamanho horizontal do terminal
+    size = shutil.get_terminal_size().columns
+    linha = '_'*size
+
+    # Pega o horário atual
+    now = datetime.datetime.now()
+    nowH = now.strftime('%H:%M')
+
+    # INFORMAÇÕES PARA CABEÇÁRIO
+    size1 = int((size / 2) - (size / 7))
+    cbcIn = """
+    +-+-+-+-+-+-+-+-+-+-+-+-+
+    |R|o|b|i|n|H|o|o|d|B|O|T|
+    +-+-+-+-+-+-+-+-+-+-+-+-+
+    author: Marcos Pachêco
+    version: 1.0 alpha
+    maintener: Marcos Pachêco
+    email: marcos.hr.pacheco@gmail.co
+    status: Production
+    """
+    aux = cbcIn.splitlines()
+    spacing = size1 * ' '
+    cbcOut = f'\n{spacing}'.join(aux)
+
+    # Coleção com todas as mensagens
+    menssagem = {
+        # EXEMPLO
+        # 'ERR_/AV_<NOME>'        : '<RETORNA>',
+
+        # DESIGN
+        'LINHA'                 : f'{linha}',
+
+        # PEDIDOS DE ENTRADA
+        'INPUT_SINAIS'          : f'[?] {nowH} - ENTRE COM A LISTA DE SINAIS ABAIXO: \n',
+        'INPUT_FILTROS'         : f'[?] {nowH} - DESEJA FILTRAR ENTRADAS?(S/N) ',
+        'INPUT_GALE'            : f'[?] {nowH} - DESEJA FAZER GALES?(S/N) ',
+        'INPUT_PORCENT_ENTRADA' : f'[?] {nowH} - PORCENTAGEM DE CADA ENTRADA: ',
+        'INPUT_TAKEPROFIT'      : f'[?] {nowH} - PORCENTAGEM DE TAKE PROFIT: ',
+        'INPUT_STOPLOSS'        : f'[?] {nowH} - PORCENTAGEM DO STOP LOSS: ',
+
+        # AVISOS
+        'AV_INICIANDO'          : f'  [!] {nowH} - INICIANDO...',
+        'AV_CONEXAO_SUCESSO'    : f'  [!] {nowH} - CONEXÃO FEITA COM SUCESSO! \n  [!] {nowH} - SEJA BEM-VINDO(A)'
+                                  f' {userName}!',
+        'AV_RECONEXAO'          : f'  [!] {nowH} - RECONEXÃO BEM SUCEDIDA!',
+        'AV_SENHA'              : f'  [!] {nowH} - SENHA ERRADA, TENTE NOVAMENTE.',
+        'AV_META'               : f'  [!] {nowH} - META BATIDA, ENCERRANDO.',
+        'AV_STOP_LOSS'          : f'  [!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.',
+        'AV_ULTIMO_SINAL'       : f'  [!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.',
+        'AV_RESULTADO'          : f'  [!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                          f' {lucro}',
+
+
+        # ERROS
+        'ERR_CONEXAO'           : f'  [!] {nowH} - ERRO AO CONECTAR, TENTANDO RECONEXÃO.',
+        'ERR_SEM_REDE'          : f'  [!] {nowH} - SEM REDE.',
+        'ERR_TIPO_ENTRADA'      : f'  [!] {nowH} - TIPO ENTRADA DEVE SER "CALL" OU "PUT".',
+        'ERR_TIPO_ATIVO'        : f'  [!] {nowH} - DIGITE CORRETAMENTO O NOME DO ATIVO.',
+        'ERR_CHECAR_ATIVO'      : f'  [!] {nowH} - {exceptError}',
+        'ERR_CHECAR_ABERTO'     : f'  [!] {nowH} - VALOR EM TIPO ATIVO DEVE SER "BINARY" OU "DIGITAL".',
+        'ERR_PAYOUT'            : f'  [!] {nowH} - ATIVO {ativo} PARA {tipoAtivo} NÃO ENCONTRADO.',
+        'ERR_TIPO_ATIVO_PAYOUT' : f'  [!] {nowH} - VALORES ACEITOS SÃO "BINARY" e "TURBO"',
+        'ERR_MARTINGALE'        : f'  [!] {nowH} - PAYOUT = {payoutVar}.',
+        'ERR_INPUT_FILTROGALE'  : f'  [!] {nowH} - ENTRE COM "S" PARA SIM OU "N" PARA NÃO.',
+        'ERR_TENDENCIA'         : f'  [!] {nowH} - ENTRADA "{tipoEntrada}" PARA "{ativo}" TIPO "{tipoAtivo}" ABORTADA: '
+                                  f'CONTRA TENDÊNCIA.',
+        'ERR_ENTRADA'           : f'  [!] {nowH} - ERRO ENTRADA: {exceptError}',
+        'ERR_INDEFINIDO'        : f'  [!] {nowH} - ERRO INDEFINIDO: {exceptError}',
+
     }
+    # Condicional que retorna o cabeçario
+    if menName == 'CBC':
+        return cbcOut
+    else:
+        # Condicional que trata a cor de saída do resultado de operação
+        if menName == 'AV_RESULTADO':
+            if resultado == 'WIN':
+                menOut = Fore.GREEN+menssagem[menName]
+                return menOut
+            elif resultado == 'LOSS':
+                menOut = Fore.RED+menssagem[menName]
+                return menOut
+            else:
+                return menssagem[menName]
+
+        # Cor para menssagens de conexão
+        elif menName == 'AV_INICIANDO' or menName == 'AV_CONEXAO_SUCESSO' or menName == 'AV_RECONEXAO' or menName == \
+                'ERR_CONEXAO':
+            menOut = Fore.CYAN+menssagem[menName]
+            return menOut
+
+        # Outros resultados que não tem tratamento de cor
+        else:
+            return menssagem[menName]
+
+# print(menssagem('LINHA'))
+# print(menssagem('ERR_CHECAR_ATIVO','aquela lá'))
+# print(menssagem('ERR_PAYOUT','AQUELE ATIVO LÁ', 'AQUELE TIPO ATIVO LÁ DOIDO'))
+# print(menssagem('AV_RESULTADO', 'EURUSD', 'CALL', 'WIN', 4.40))
+# print(menssagem('AV_RESULTADO', 'EURUSD', 'CALL', 'NONE', 4.40))
+# print(menssagem('AV_RESULTADO', 'EURUSD', 'CALL', 'LOSS', 4.40))
+#
+# print(menssagem('AV_INICIANDO'))
+# print(menssagem('AV_CONEXAO_SUCESSO','MARCOS PACHÊCO'))
+# print(menssagem('AV_RECONEXAO'))
+# print(menssagem('ERR_CONEXAO'))

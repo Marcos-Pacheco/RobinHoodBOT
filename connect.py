@@ -6,7 +6,8 @@
 
 # Imports
 from iqoptionapi.stable_api import IQ_Option
-import time, json, datetime, shutil
+from misc import *
+import time, json
 
 # Retorna os dados do perfil passado no objeto login
 def perfil (login):
@@ -31,41 +32,49 @@ def login (reconnect=False):
     error_network = "[Errno -2] Name or service not known"
     tipoCon = "PRACTICE"
     login = conn()
-    now = datetime.datetime.now()
-    nowH = str(now.strftime('%H:%M'))
 
     # Tentativas de reconexão
     check, reason = login.connect()
     if check:
         if (reconnect == False):
-            print (f"[!] {nowH} - INICIANDO...")
+            print(menssagem('AV_INICIANDO'))
+            # print (f"[!] {nowH} - INICIANDO...")
         while True:
             if login.check_connect() == False:
-                print (f"[!] {nowH} - ERRO AO CONECTAR, TENTANDO RECONEXÃO")
+                print(menssagem('ERR_CONEXAO'))
+                # print (f"[!] {nowH} - ERRO AO CONECTAR, TENTANDO RECONEXÃO")
                 check, reason = login.connect()
                 if check:
-                    print(f"Reconexão bem sucessedida!")
+                    # print(f"Reconexão bem sucessedida!")
+                    print(menssagem('AV_RECONEXAO'))
                 else:
                     if reason == error_password:
-                        print ("Senha errada, tente novamente.")
+                        # print ("Senha errada, tente novamente.")
+                        print(menssagem('AV_SENHA'))
                     else:
-                        print ("Sem rede.")
+                        # print ("Sem rede.")
+                        print(menssagem('ERR_SEM_REDE'))
             else:
                 if (reconnect == False):
                     dadosPer = perfil(login)
                     userName = str(dadosPer['name'])
                     userName = userName.upper()
-                    size = shutil.get_terminal_size().columns
-                    print (f"[!] {nowH} - CONEXÃO FEITA COM SUCESSO! \n[!] {nowH} - SEJA BEM-VINDO(A)"
-                           f" {userName}!")
-                    print('_'*size)
+                    # size = shutil.get_terminal_size().columns
+                    # print (f"[!] {nowH} - CONEXÃO FEITA COM SUCESSO! \n[!] {nowH} - SEJA BEM-VINDO(A)"
+                    #        f" {userName}!")
+                    # print('_'*size)
+                    print(menssagem('AV_CONEXAO_SUCESSO',userName))
+                    print(menssagem('LINHA'))
                     print ('\n')
                 break
     else:
         if reason == error_network:
-            print("Sem rede.")
+            # print("Sem rede.")
+            print(menssagem('ERR_SEM_REDE'))
         elif reason == error_password:
-            print("Senha errada, tente novamente.")
+            # print("Senha errada, tente novamente.")
+            print(menssagem('AV_SENHA'))
+
 
     # Tipo de banca, prática ou real
     login.change_balance(tipoCon)  # PRACTICE / REAL

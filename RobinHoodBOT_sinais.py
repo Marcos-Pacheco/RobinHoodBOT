@@ -7,7 +7,7 @@
 # Imports
 from misc import *
 from indicadores import *
-import connect, json, shutil
+import connect, json
 
 # Geri as entradas, passando-as por filtros primeiramente
 def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=False):
@@ -37,12 +37,6 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
     balancoIni = banca(api)
 
     # Valores adicionais a serem gravados ao final #
-
-    # Erros
-
-    errTend = f'[!] {nowH} - ENTRADA "{tipoEntrada}" PARA "{ativo}" TIPO "{tipoAtivo}" ABORTADA: CONTRA TENDÊNCIA.'
-
-    # Erros
 
     # STATUS META #
 
@@ -82,29 +76,34 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
             try:
                 resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
             except TypeError as e:
-                print(f'[!] {nowH} - ERRO_ENTRADA:', e)
+                # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
+                print(menssagem('ERR_ENTRADA',e))
             except Exception as e:
-                print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
+                # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
+                print(menssagem('ERR_INDEFINIDO', e))
             else:
                 if lucro != None:
-                    print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                          f' {lucro}')
+                    print(menssagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
+                    # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                    #       f' {lucro}')
 
         else:
-            print (errTend)
+            print (menssagem('ERR_TENDENCIA',tipoEntrada,ativo,tipoAtivo))
 
     else:
         # Verifica se a entrada teve sucesso
         try:
             resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
         except TypeError as e:
-            print(f'[!] {nowH} - ERRO_ENTRADA:', e)
+            # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
+            print(menssagem('ERR_ENTRADA', e))
         except Exception as e:
-            print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
+
+            # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
+            print(menssagem('ERR_INDEFINIDO', e))
         else:
             if lucro != None:
-                print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                      f' {lucro}')
+                print(menssagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
 
 
     # Se gale == True, procede com martingale
@@ -127,13 +126,16 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
                 # Novos resultados que serão gravados no bloco de gravação abaixo
                 resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
             except TypeError as e:
-                print(f'[!] {nowH} - ERRO_ENTRADA:', e)
+                # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
+                print(menssagem('ERR_ENTRADA', e))
             except Exception as e:
-                print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
+                # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
+                print(menssagem('ERR_INDEFINIDO', e))
             else:
                 if lucro != None:
-                    print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                          f' {lucro}')
+                    # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                    #       f' {lucro}')
+                    print(menssagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
 
     # GRAVAR RESULTADOS
 
@@ -153,18 +155,8 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
             gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
 
 # Mensagem inicial
-size = shutil.get_terminal_size().columns
-size1 = int((size/2)-(size/7))
-print (' '*size1,'+-+-+-+-+-+-+-+-+-+-+-+-+')
-print (' '*size1,'|R|o|b|i|n|H|o|o|d|B|O|T|')
-print (' '*size1,'+-+-+-+-+-+-+-+-+-+-+-+-+')
-print ('')
-print (' '*size1,'author: Marcos Pachêco')
-print (' '*size1,'version: 1.0 alpha')
-print (' '*size1,'maintener: Marcos Pachêco')
-print (' '*size1,'email: marcos.hr.pacheco@gmail.com')
-print (' '*size1,'status: Production')
-print ('_'*size)
+print(menssagem('CBC'))
+print (menssagem('LINHA'))
 
 now = datetime.datetime.now()
 nowH = str(now.strftime('%H:%M'))
@@ -174,7 +166,8 @@ nowH = str(now.strftime('%H:%M'))
 valor = []
 linha = []
 linhas = []
-print (f'[!] {nowH} - ENTRE COM A LISTA DE SINAIS ABAIXO: \n')
+print(menssagem('INPUT_SINAIS'))
+# print (f'[!] {nowH} - ENTRE COM A LISTA DE SINAIS ABAIXO: \n')
 while True:
     linha = input()
     if linha:
@@ -184,11 +177,11 @@ while True:
 valor = formatar_sinais('\n'.join(linhas))
 
 # Inputs de opção de gerênciamento 
-opFiltro = str(input(f'[?] {nowH} - DESEJA FILTRAR ENTRADAS?(S/N) '))
-opGale = str(input(f'[?] {nowH} - DESEJA FAZER GALES?(S/N) '))
-porcentEntrada = input(f'[?] {nowH} - PORCENTAGEM DE CADA ENTRADA: ')
-takepft = input(f'[?] {nowH} - PORCENTAGEM DE TAKE PROFIT: ') # 0.02 padrão
-stoplss = input(f'[?] {nowH} - PORCENTAGEM DO STOP LOSS: ') # 0.02 padrão
+opFiltro = str(input(menssagem('INPUT_FILTROS')))
+opGale = str(input(menssagem('INPUT_GALE')))
+porcentEntrada = input(menssagem('INPUT_PORCENT_ENTRADA'))
+takepft = input(menssagem('INPUT_TAKEPROFIT')) # 0.02 padrão
+stoplss = input(menssagem('INPUT_STOPLOSS')) # 0.02 padrão
 
 # tranforma os valores digitados em decimal
 porcentEntrada = float(porcentEntrada)
@@ -215,7 +208,7 @@ if opFiltro == 'S' or opFiltro == 's':
 elif opFiltro == 'N' or opFiltro == 'n':
     opFiltro = False
 else:
-    f'[!] {nowH} - ENTRE COM "S" PARA SIM OU "N" PARA NÃO.'
+    print(menssagem('ERR_INPUT_FILTROGALE'))
 
 # Transforma os valores str em booleanos
 if opGale == 'S' or opGale == 's':
@@ -223,7 +216,7 @@ if opGale == 'S' or opGale == 's':
 elif opGale == 'N' or opGale == 'n':
     opGale = False
 else:
-    f'[!] {nowH} - ENTRE COM "S" PARA SIM OU "N" PARA NÃO.'
+    print(menssagem('ERR_INPUT_FILTROGALE'))
 
 # Grava os sinais formatados em json para utilização no resto do código
 gravar(valor,'sinaisDia','json','w')

@@ -1,17 +1,92 @@
 {
    "SINAL1": {
-      "HORA": "20:20",
-      "ATIVO": "EURGBP-OTC",
+      "HORA": "01:10",
+      "ATIVO": "EURGBP",
       "ENTRADA": "PUT"
    },
    "SINAL2": {
-      "HORA": "20:25",
-      "ATIVO": "NZDUSD-OTC",
-      "ENTRADA": "PUT"
+      "HORA": "02:20",
+      "ATIVO": "EURJPY",
+      "ENTRADA": "CALL"
    },
    "SINAL3": {
-      "HORA": "20:30",
-      "ATIVO": "NZDUSD-OTC",
+      "HORA": "03:50",
+      "ATIVO": "AUDJPY",
+      "ENTRADA": "CALL"
+   },
+   "SINAL4": {
+      "HORA": "04:20",
+      "ATIVO": "USDJPY",
+      "ENTRADA": "CALL"
+   },
+   "SINAL5": {
+      "HORA": "05:00",
+      "ATIVO": "GBPCAD",
+      "ENTRADA": "PUT"
+   },
+   "SINAL6": {
+      "HORA": "05:30",
+      "ATIVO": "EURUSD",
+      "ENTRADA": "CALL"
+   },
+   "SINAL7": {
+      "HORA": "06:05",
+      "ATIVO": "GBPCAD",
+      "ENTRADA": "PUT"
+   },
+   "SINAL8": {
+      "HORA": "07:20",
+      "ATIVO": "USDCAD",
+      "ENTRADA": "PUT"
+   },
+   "SINAL9": {
+      "HORA": "07:45",
+      "ATIVO": "EURUSD",
+      "ENTRADA": "CALL"
+   },
+   "SINAL10": {
+      "HORA": "08:00",
+      "ATIVO": "AUDUSD",
+      "ENTRADA": "CALL"
+   },
+   "SINAL11": {
+      "HORA": "08:20",
+      "ATIVO": "USDJPY",
+      "ENTRADA": "PUT"
+   },
+   "SINAL12": {
+      "HORA": "09:20",
+      "ATIVO": "USDJPY",
+      "ENTRADA": "CALL"
+   },
+   "SINAL13": {
+      "HORA": "09:50",
+      "ATIVO": "USDCAD",
+      "ENTRADA": "CALL"
+   },
+   "SINAL14": {
+      "HORA": "10:00",
+      "ATIVO": "USDCHF",
+      "ENTRADA": "CALL"
+   },
+   "SINAL15": {
+      "HORA": "10:25",
+      "ATIVO": "EURJPY",
+      "ENTRADA": "CALL"
+   },
+   "SINAL16": {
+      "HORA": "11:20",
+      "ATIVO": "EURUSD",
+      "ENTRADA": "CALL"
+   },
+   "SINAL17": {
+      "HORA": "11:35",
+      "ATIVO": "GBPCAD",
+      "ENTRADA": "CALL"
+   },
+   "SINAL18": {
+      "HORA": "11:50",
+      "ATIVO": "GBPUSD",
       "ENTRADA": "PUT"
    }
 }
