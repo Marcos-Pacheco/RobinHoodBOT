@@ -192,7 +192,7 @@ def gravar (value,filename,typefile, typewrite):
 def ler (filename):
     try:
         file = open(filename,'r')
-        file.read()
+        return file.read()
     except NameError as e:
         print(e)
     except Exception as e:
