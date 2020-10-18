@@ -53,7 +53,7 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
     # Checa se o ativo em questão está aberto
     opencheck = checar_ativo_aberto(api, ativo, tipoAtivo)
 
-    # Se o ativo estiver aberto no tipoAtivo definido, senao tenta abrir no outro
+    # Se o ativo estiver aberto no tipoAtivo definido, senão tenta abrir no outro
     if opencheck == False:
         # Faz entrada em digital caso binária fechada
         if tipoAtivo == 'BINARY':
@@ -61,70 +61,47 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
         else:
             tipoAtivo = 'BINARY'
 
-    # FILTROS
+    # Verifica se o ativo está aberto no outro tipoAtivo
+    opencheck = checar_ativo_aberto(api, ativo, tipoAtivo)
 
     # Valor padrão para tupla. Medida preventiva para erro de 'variável não definida'
     resultado, lucro = None, None
 
-    if filtrar:
-        # Checa a tendência
-        tend = tendencia_2(api,ativo,30,200)
+    # Se o valor ainda for falso, cancela a operação
 
-        # Realiza a operação de compra caso os filtros estejam de acordo
-        if tend == tipoEntrada:
-            # Verifica se a entrada teve sucesso
-            try:
-                resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
-            except TypeError as e:
-                # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
-                print(mensagem('ERR_ENTRADA',e))
-            except Exception as e:
-                # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
-                print(mensagem('ERR_INDEFINIDO', e))
+    if opencheck == True:
+
+        # FILTROS
+
+        if filtrar:
+            # Checa a tendência
+            tend = str(tendencia_2(api,ativo,30,200))
+            # print('   ', api, ativo,tend, sep='||')
+
+            # Realiza a operação de compra caso os filtros estejam de acordo
+            if tend == tipoEntrada:
+                # Verifica se a entrada teve sucesso
+                try:
+                    resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
+                except TypeError as e:
+                    # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
+                    print(mensagem('ERR_ENTRADA',e))
+                except Exception as e:
+                    # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
+                    print(mensagem('ERR_INDEFINIDO', e))
+                else:
+                    if lucro != None:
+                        print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
+                        # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                        #       f' {lucro}')
+
             else:
-                if lucro != None:
-                    print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
-                    # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                    #       f' {lucro}')
+                print(mensagem('ERR_TENDENCIA',tipoEntrada,ativo,tipoAtivo))
 
         else:
-            print (mensagem(   'ERR_TENDENCIA',tipoEntrada,ativo,tipoAtivo))
-
-    else:
-        # Verifica se a entrada teve sucesso
-        try:
-            resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
-        except TypeError as e:
-            # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
-            print(mensagem('ERR_ENTRADA', e))
-        except Exception as e:
-
-            # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
-            print(mensagem('ERR_INDEFINIDO', e))
-        else:
-            if lucro != None:
-                print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
-
-
-    # Se gale == True, procede com martingale
-    if gale:
-        # Carrega payout do ativo
-        payoutvar = payout(api, ativo, tipoAtivo)
-
-        # Checa se o resultado foi LOSS e se o calculo de payout foi executado com sucesso, se sim executa o martingale
-        if resultado == "LOSS" and payoutvar != None:
-            losses += 1
-            # Gravar resultado da primeira entrada que deu loss
-            balancoFin = banca(api)
-            gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
-
-            # Executar martingale
-            galevar = martingale(valor, lucro, payoutvar)
-
             # Verifica se a entrada teve sucesso
             try:
-                # Novos resultados que serão gravados no bloco de gravação abaixo
-                resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
+                resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
             except TypeError as e:
                 # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
                 print(mensagem('ERR_ENTRADA', e))
@@ -133,10 +110,41 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
                 print(mensagem('ERR_INDEFINIDO', e))
             else:
                 if lucro != None:
-                    # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                    #       f' {lucro}')
                     print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
 
+
+        # Se gale == True, procede com martingale
+        if gale:
+            # Carrega payout do ativo
+            payoutvar = payout(api, ativo, tipoAtivo)
+
+            # Checa se o resultado foi LOSS e se o calculo de payout foi executado com sucesso, se sim executa o martingale
+            if resultado == "LOSS" and payoutvar != None:
+                losses += 1
+                # Gravar resultado da primeira entrada que deu loss
+                balancoFin = banca(api)
+                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
+
+                # Executar martingale
+                galevar = martingale(valor, lucro, payoutvar)
+
+                # Verifica se a entrada teve sucesso
+                try:
+                    # Novos resultados que serão gravados no bloco de gravação abaixo
+                    resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
+                except TypeError as e:
+                    # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
+                    print(mensagem('ERR_ENTRADA', e))
+                except Exception as e:
+                    # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
+                    print(mensagem('ERR_INDEFINIDO', e))
+                else:
+                    if lucro != None:
+                        # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
+                        #       f' {lucro}')
+                        print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
+    else:
+        print(mensagem('AV_ATIVO_FECHADO',ativo,tipoAtivo))
     # GRAVAR RESULTADOS
 
     # Adiciona 1 ao contador de win ou loss

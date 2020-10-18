@@ -1,31 +1,26 @@
 {
    "SINAL1": {
-      "HORA": "00:15",
-      "ATIVO": "EURJPY-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL2": {
-      "HORA": "00:20",
+      "HORA": "02:00",
       "ATIVO": "AUDJPY-OTC",
       "ENTRADA": "CALL"
    },
-   "SINAL3": {
-      "HORA": "00:25",
+   "SINAL2": {
+      "HORA": "02:30",
       "ATIVO": "EURGBP-OTC",
       "ENTRADA": "PUT"
    },
-   "SINAL4": {
-      "HORA": "00:30",
+   "SINAL3": {
+      "HORA": "02:15",
       "ATIVO": "USDJPY-OTC",
       "ENTRADA": "PUT"
    },
-   "SINAL5": {
-      "HORA": "00:35",
+   "SINAL4": {
+      "HORA": "02:25",
       "ATIVO": "GBPAUD-OTC",
       "ENTRADA": "PUT"
    },
-   "SINAL6": {
-      "HORA": "00:45",
+   "SINAL5": {
+      "HORA": "02:10",
       "ATIVO": "AUDCAD-OTC",
       "ENTRADA": "PUT"
    }

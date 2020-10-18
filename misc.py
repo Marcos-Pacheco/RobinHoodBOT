@@ -46,6 +46,10 @@ def mensagem(menName,*args):
     elif menName == 'ERR_ENTRADA' or menName == 'ERR_INDEFINIDO':
         exceptError = args[0]
 
+    elif menName == 'AV_ATIVO_FECHADO':
+        ativo = args[0]
+        tipoAtivo = args[1]
+
     # Pega o tamanho horizontal do terminal
     size = shutil.get_terminal_size().columns
     linha = '_'*size
@@ -95,6 +99,7 @@ def mensagem(menName,*args):
         'AV_META'               : f'  [!] {nowH} - META BATIDA, ENCERRANDO.',
         'AV_STOP_LOSS'          : f'  [!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.',
         'AV_ULTIMO_SINAL'       : f'  [!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.',
+        'AV_ATIVO_FECHADO'      : f'  [!] {nowH} - {ativo} DO TIPO {tipoAtivo} FECHADO.',
         'AV_RESULTADO'          : f'  [!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
                           f' {lucro}',
 
@@ -104,7 +109,7 @@ def mensagem(menName,*args):
         'ERR_SEM_REDE'          : f'  [!] {nowH} - SEM REDE.',
         'ERR_TIPO_ENTRADA'      : f'  [!] {nowH} - TIPO ENTRADA DEVE SER "CALL" OU "PUT".',
         'ERR_TIPO_ATIVO'        : f'  [!] {nowH} - DIGITE CORRETAMENTO O NOME DO ATIVO.',
-        'ERR_CHECAR_ATIVO'      : f'  [!] {nowH} - {exceptError}',
+        'ERR_CHECAR_ATIVO'      : f'  [!] {nowH} - ERRO AO CHECAR ATIVO - {exceptError}',
         'ERR_CHECAR_ABERTO'     : f'  [!] {nowH} - VALOR EM TIPO ATIVO DEVE SER "BINARY" OU "DIGITAL".',
         'ERR_PAYOUT'            : f'  [!] {nowH} - ATIVO {ativo} PARA {tipoAtivo} NÃO ENCONTRADO.',
         'ERR_TIPO_ATIVO_PAYOUT' : f'  [!] {nowH} - VALORES ACEITOS SÃO "BINARY" e "TURBO"',
