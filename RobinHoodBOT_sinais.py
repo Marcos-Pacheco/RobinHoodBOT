@@ -77,18 +77,18 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
                 resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
             except TypeError as e:
                 # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
-                print(menssagem('ERR_ENTRADA',e))
+                print(mensagem('ERR_ENTRADA',e))
             except Exception as e:
                 # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
-                print(menssagem('ERR_INDEFINIDO', e))
+                print(mensagem('ERR_INDEFINIDO', e))
             else:
                 if lucro != None:
-                    print(menssagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
+                    print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
                     # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
                     #       f' {lucro}')
 
         else:
-            print (menssagem('ERR_TENDENCIA',tipoEntrada,ativo,tipoAtivo))
+            print (mensagem(   'ERR_TENDENCIA',tipoEntrada,ativo,tipoAtivo))
 
     else:
         # Verifica se a entrada teve sucesso
@@ -96,14 +96,14 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
             resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
         except TypeError as e:
             # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
-            print(menssagem('ERR_ENTRADA', e))
+            print(mensagem('ERR_ENTRADA', e))
         except Exception as e:
 
             # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
-            print(menssagem('ERR_INDEFINIDO', e))
+            print(mensagem('ERR_INDEFINIDO', e))
         else:
             if lucro != None:
-                print(menssagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
+                print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
 
 
     # Se gale == True, procede com martingale
@@ -127,15 +127,15 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
                 resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
             except TypeError as e:
                 # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
-                print(menssagem('ERR_ENTRADA', e))
+                print(mensagem('ERR_ENTRADA', e))
             except Exception as e:
                 # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
-                print(menssagem('ERR_INDEFINIDO', e))
+                print(mensagem('ERR_INDEFINIDO', e))
             else:
                 if lucro != None:
                     # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
                     #       f' {lucro}')
-                    print(menssagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
+                    print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
 
     # GRAVAR RESULTADOS
 
@@ -155,8 +155,8 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
             gravar_balanco(filepath, balancoIni, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
 
 # Mensagem inicial
-print(menssagem('CBC'))
-print (menssagem('LINHA'))
+print(mensagem('CBC'))
+print (mensagem(   'LINHA'))
 
 now = datetime.datetime.now()
 nowH = str(now.strftime('%H:%M'))
@@ -166,7 +166,7 @@ nowH = str(now.strftime('%H:%M'))
 valor = []
 linha = []
 linhas = []
-print(menssagem('INPUT_SINAIS'))
+print(mensagem('INPUT_SINAIS'))
 # print (f'[!] {nowH} - ENTRE COM A LISTA DE SINAIS ABAIXO: \n')
 while True:
     linha = input()
@@ -177,11 +177,11 @@ while True:
 valor = formatar_sinais('\n'.join(linhas))
 
 # Inputs de opção de gerênciamento 
-opFiltro = str(input(menssagem('INPUT_FILTROS')))
-opGale = str(input(menssagem('INPUT_GALE')))
-porcentEntrada = input(menssagem('INPUT_PORCENT_ENTRADA'))
-takepft = input(menssagem('INPUT_TAKEPROFIT')) # 0.02 padrão
-stoplss = input(menssagem('INPUT_STOPLOSS')) # 0.02 padrão
+opFiltro = str(input(mensagem( 'INPUT_FILTROS')))
+opGale = str(input(mensagem(   'INPUT_GALE')))
+porcentEntrada = input(mensagem(   'INPUT_PORCENT_ENTRADA'))
+takepft = input(mensagem(  'INPUT_TAKEPROFIT')) # 0.02 padrão
+stoplss = input(mensagem(  'INPUT_STOPLOSS')) # 0.02 padrão
 
 # tranforma os valores digitados em decimal
 porcentEntrada = float(porcentEntrada)
@@ -208,7 +208,7 @@ if opFiltro == 'S' or opFiltro == 's':
 elif opFiltro == 'N' or opFiltro == 'n':
     opFiltro = False
 else:
-    print(menssagem('ERR_INPUT_FILTROGALE'))
+    print(mensagem('ERR_INPUT_FILTROGALE'))
 
 # Transforma os valores str em booleanos
 if opGale == 'S' or opGale == 's':
@@ -216,7 +216,7 @@ if opGale == 'S' or opGale == 's':
 elif opGale == 'N' or opGale == 'n':
     opGale = False
 else:
-    print(menssagem('ERR_INPUT_FILTROGALE'))
+    print(mensagem('ERR_INPUT_FILTROGALE'))
 
 # Grava os sinais formatados em json para utilização no resto do código
 gravar(valor,'sinaisDia','json','w')
