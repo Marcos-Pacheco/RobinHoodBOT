@@ -11,7 +11,7 @@ from colorama import init, Fore, Back, Style
 import json, schedule, time, datetime, shutil
 
 # Coleção de todos os outputs do código com tratamento de cores
-def menssagem(menName,*args):
+def mensagem(menName,*args):
     ## COLORAMA CONFIGS ##
     init(convert=True, autoreset=True)
 
@@ -71,7 +71,7 @@ def menssagem(menName,*args):
     cbcOut = f'\n{spacing}'.join(aux)
 
     # Coleção com todas as mensagens
-    menssagem = {
+    mensagem = {
         # EXEMPLO
         # 'ERR_/AV_<NOME>'        : '<RETORNA>',
 
@@ -123,23 +123,23 @@ def menssagem(menName,*args):
         # Condicional que trata a cor de saída do resultado de operação
         if menName == 'AV_RESULTADO':
             if resultado == 'WIN':
-                menOut = Fore.GREEN+menssagem[menName]
+                menOut = Fore.GREEN+mensagem[menName]
                 return menOut
             elif resultado == 'LOSS':
-                menOut = Fore.RED+menssagem[menName]
+                menOut = Fore.RED+mensagem[menName]
                 return menOut
             else:
-                return menssagem[menName]
+                return mensagem[menName]
 
         # Cor para menssagens de conexão
         elif menName == 'AV_INICIANDO' or menName == 'AV_CONEXAO_SUCESSO' or menName == 'AV_RECONEXAO' or menName == \
                 'ERR_CONEXAO':
-            menOut = Fore.CYAN+menssagem[menName]
+            menOut = Fore.CYAN+mensagem[menName]
             return menOut
 
         # Outros resultados que não tem tratamento de cor
         else:
-            return menssagem[menName]
+            return mensagem[menName]
 
 # Converte o valor de timestamp para valor legível
 def timestamp_conv (t_value):
@@ -276,16 +276,16 @@ def executar_agenda(horaParada, dataExec, take, stop):
         if isinstance(take,float) and isinstance(stop,float):
             if metaCheck == True:
                 # print (f'[!] {nowH} - META BATIDA, ENCERRANDO.')
-                print (menssagem('AV_META'))
+                print (mensagem('AV_META'))
                 break
             elif metaCheck == 'STPLS':
                 # print (f'[!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.')
-                print(menssagem('AV_STOP_LOSS'))
+                print(mensagem('AV_STOP_LOSS'))
                 break
             elif (dataExec == nowD):
                 if (str(nowH) >= horaParada):
                     # print(f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
-                    print(menssagem('AV_ULTIMO_SINAL'))
+                    print(mensagem('AV_ULTIMO_SINAL'))
                     break
                 else:
                     schedule.run_pending()
@@ -295,12 +295,12 @@ def executar_agenda(horaParada, dataExec, take, stop):
         elif isinstance(stop,float):
             if metaCheck == 'STPLS':
                 # print (f'[!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.')
-                print(menssagem('AV_STOP_LOSS'))
+                print(mensagem('AV_STOP_LOSS'))
                 break
             elif (dataExec == nowD):
                 if (str(nowH) >= horaParada):
                     # print(f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
-                    print(menssagem('AV_ULTIMO_SINAL'))
+                    print(mensagem('AV_ULTIMO_SINAL'))
                     break
                 else:
                     schedule.run_pending()
@@ -309,12 +309,12 @@ def executar_agenda(horaParada, dataExec, take, stop):
         elif isinstance(take,float):
             if metaCheck == True:
                 # print (f'[!] {nowH} - META BATIDA, ENCERRANDO.')
-                print(menssagem('AV_META'))
+                print(mensagem('AV_META'))
                 break
             elif (dataExec == nowD):
                 if (str(nowH) >= horaParada):
                     # print(f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
-                    print(menssagem('AV_ULTIMO_SINAL'))
+                    print(mensagem('AV_ULTIMO_SINAL'))
                     break
                 else:
                     schedule.run_pending()
@@ -323,7 +323,7 @@ def executar_agenda(horaParada, dataExec, take, stop):
         elif (dataExec == nowD):
             if (str(nowH) >= horaParada):
                 # print (f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
-                print(menssagem('AV_ULTIMO_SINAL'))
+                print(mensagem('AV_ULTIMO_SINAL'))
                 break
             else:
                 schedule.run_pending()
@@ -351,11 +351,11 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                 return (resultado, round(valorf,2))
             elif status == False:
                 # print (id)
-                print(menssagem('ERR_INDEFINIDO',str(id).upper()))
+                print(mensagem('ERR_INDEFINIDO',str(id).upper()))
                 return None, None
         else:
             # print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
-            print(menssagem('ERR_TIPO_ENTRADA'))
+            print(mensagem('ERR_TIPO_ENTRADA'))
             return None, None
 
     # Verifica se tipoAtivo, se binárias ou digitais
@@ -387,15 +387,15 @@ def entrar(api,valor,ativo,tipoAtivo,tipoEntrada, tempoVela):
                             return (resultadof, round(valorf, 2))
             else:
                 # print(id)
-                print(menssagem('ERR_INDEFINIDO', str(id).upper()))
+                print(mensagem('ERR_INDEFINIDO', str(id).upper()))
         else:
             # print('ERRO_TIPO_ENTRADA:\nTIPO ENTRADA DEVE SER "CALL" OU "PUT".')
-            print(menssagem('ERR_TIPO_ENTRADA'))
+            print(mensagem('ERR_TIPO_ENTRADA'))
             return None, None
 
     else:
         # print('ERRO_TIPO_ATIVO:\nDIGITE CORRETAMENTO O NOME DO ATIVO.')
-        print(menssagem('ERR_TIPO_ATIVO'))
+        print(mensagem('ERR_TIPO_ATIVO'))
         return None, None
 
 # Retorna True se arquivo encontrado e False caso não
@@ -464,7 +464,7 @@ def checar_ativo_aberto(api,ativo,tipoAtivo):
         dado = api.get_all_open_time()
     except Exception as e:
         # print ('ERRO_CHECAR_ATIVO:',e)
-        print(menssagem('ERR_CHECAR_ATIVO',str(e).upper()))
+        print(mensagem('ERR_CHECAR_ATIVO',str(e).upper()))
     else:
         # dict que receberá os binários ativos
         binary = []
@@ -486,7 +486,7 @@ def checar_ativo_aberto(api,ativo,tipoAtivo):
             return ativo in digital
         else:
             # print('ERRO_CHECAR_ABERTO: VALOR EM TIPO ATIVO DEVE SER "BINARY" ou "DIGITAL".')
-            print(menssagem('ERR_CHECAR_ABERTO'))
+            print(mensagem('ERR_CHECAR_ABERTO'))
             return None
 
 # Retorna o payout do ativo definido
@@ -499,7 +499,7 @@ def payout(api,ativo,tipoAtivo,timeframe = 1):
             return (int(data[ativo]['turbo'] * 100))
         else:
             # print (f'ERRO_PAYOUT: ATIVO {ativo} PARA {tipoAtivo} NÃO ENCONTRADO.')
-            print(menssagem('ERR_PAYOUT',ativo,tipoAtivo))
+            print(mensagem('ERR_PAYOUT',ativo,tipoAtivo))
             return None
 
     elif tipoAtivo == 'DIGITAL':
@@ -514,7 +514,7 @@ def payout(api,ativo,tipoAtivo,timeframe = 1):
         return data
     else:
         # print('ERRO_TIPOATIVO:VALORES ACEITOS SÃO "BINARY" e "TURBO"')
-        print(menssagem('ERR_TIPO_ATIVO_PAYOUT'))
+        print(mensagem('ERR_TIPO_ATIVO_PAYOUT'))
         return None
 
 # Retorna o valor do martingale
@@ -522,7 +522,7 @@ def martingale(valorEnt, valorRes, payout):
     lucroEsp = valorEnt*(payout/100)
     if payout == None:
         # print (f'ERRO_MARTINGALE: PAYOUT = {payout}')
-        print(menssagem('ERR_MARTINGALE',payout))
+        print(mensagem('ERR_MARTINGALE',payout))
         return None
     else:
         payout = payout/100
