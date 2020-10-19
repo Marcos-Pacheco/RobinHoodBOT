@@ -8,7 +8,7 @@
 from datetime import datetime
 from dateutil import tz
 from colorama import init, Fore, Back, Style
-import json, schedule, time, datetime, shutil
+import json, schedule, time, datetime, shutil, decimal
 
 # Coleção de todos os outputs do código com tratamento de cores
 def mensagem(menName,*args):
@@ -567,3 +567,45 @@ def checar_meta_batida(date,percent=0.02):
     else:
         # Se o arquivo ainda não existir, prosseguir com o código
         return False
+
+# Retorna o valor truncado do número
+def truncate(number, nDecimals):
+    var = str(number).split('.')
+    if nDecimals>len(var[1]):
+        size = len(var[1])
+        size2 = nDecimals - size
+        qtdZero = size2*'0'
+        return decimal.Decimal(var[0]+'.'+var[1]+qtdZero)
+    else:
+        return float(var[0]+'.'+var[1][:nDecimals])
+
+# Retorna lista com todos os ativos abertos
+def ativos_abertos(api):
+    # pega todos o ativos abertos
+    dado = api.get_all_open_time()
+
+    # dict que receberá os binários ativos
+    binary = []
+    # dict que receberá os digitais ativos
+    digital = []
+
+    # Carrega todas as opções binárias abertas
+    for paridade in dado['turbo']:
+        if dado['turbo'][paridade]['open'] == True:
+            binary.append(paridade)
+
+    # Carrega todas as opções digitais abertas
+    for paridade in dado['digital']:
+        if dado['digital'][paridade]['open'] == True:
+            digital.append(paridade)
+
+    abertas = []
+    for i in range(len(binary)):
+        abertas.append(binary[i])
+    for i in range(len(digital)):
+        abertas.append(digital[i])
+
+    # transformar em dict e depois em lista novamente para retirar as duplicatas pois dict não aceita keys iguais
+    abertas = list(dict.fromkeys(abertas))
+    return abertas
+
