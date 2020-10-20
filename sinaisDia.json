@@ -1,55 +1,20 @@
 {
    "SINAL1": {
-      "HORA": "00:45",
-      "ATIVO": "CADJPY",
+      "HORA": "13:20",
+      "ATIVO": "EURGBP",
       "ENTRADA": "CALL"
    },
    "SINAL2": {
-      "HORA": "00:45",
-      "ATIVO": "USDJPY",
-      "ENTRADA": "CALL"
-   },
-   "SINAL3": {
-      "HORA": "01:30",
-      "ATIVO": "AUDJPY",
-      "ENTRADA": "CALL"
-   },
-   "SINAL4": {
-      "HORA": "01:30",
-      "ATIVO": "AUDUSD",
-      "ENTRADA": "CALL"
-   },
-   "SINAL5": {
-      "HORA": "05:35",
-      "ATIVO": "AUDJPY",
-      "ENTRADA": "CALL"
-   },
-   "SINAL6": {
-      "HORA": "06:35",
-      "ATIVO": "USDJPY",
-      "ENTRADA": "PUT"
-   },
-   "SINAL7": {
-      "HORA": "07:20",
-      "ATIVO": "AUDJPY",
-      "ENTRADA": "CALL"
-   },
-   "SINAL8": {
-      "HORA": "10:25",
-      "ATIVO": "EURJPY",
-      "ENTRADA": "CALL"
-   },
-   "SINAL9": {
       "HORA": "13:20",
       "ATIVO": "EURUSD",
       "ENTRADA": "CALL"
    },
-   "SINAL10": {
+   "SINAL3": {
       "HORA": "13:35",
       "ATIVO": "AUDJPY",
       "ENTRADA": "CALL"
    },
-   "SINAL11": {
+   "SINAL4": {
       "HORA": "14:55",
       "ATIVO": "USDJPY",
       "ENTRADA": "CALL"

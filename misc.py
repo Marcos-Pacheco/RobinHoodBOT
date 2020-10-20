@@ -599,6 +599,7 @@ def ativos_abertos(api):
         if dado['digital'][paridade]['open'] == True:
             digital.append(paridade)
 
+    # print(binary,digital)
     abertas = []
     for i in range(len(binary)):
         abertas.append(binary[i])

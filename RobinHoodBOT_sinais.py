@@ -112,7 +112,6 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
                 if lucro != None:
                     print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
 
-
         # Se gale == True, procede com martingale
         if gale:
             # Carrega payout do ativo
@@ -123,7 +122,8 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
                 losses += 1
                 # Gravar resultado da primeira entrada que deu loss
                 balancoFin = banca(api)
-                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
+                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins,
+                               losses)
 
                 # Executar martingale
                 galevar = martingale(valor, lucro, payoutvar)
@@ -174,6 +174,7 @@ nowH = str(now.strftime('%H:%M'))
 valor = []
 linha = []
 linhas = []
+
 print(mensagem('INPUT_SINAIS'))
 # print (f'[!] {nowH} - ENTRE COM A LISTA DE SINAIS ABAIXO: \n')
 while True:
@@ -256,7 +257,7 @@ for i, j in sinais.items():
 
     # Verifica se o sinal em questão ainda não passou do tempo, se não, realiza o agendamento
     if (j['HORA'] > nowH):
-        agendar(formatar_hora_entrada(j['HORA'], 6), gerir_entrada, api, j['ATIVO'], j['ENTRADA'], porcentEntrada,
+        agendar(formatar_hora_entrada(j['HORA'], 10), gerir_entrada, api, j['ATIVO'], j['ENTRADA'], porcentEntrada,
                 opFiltro, opGale)
 
 horaFinal = maiorH
