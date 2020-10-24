@@ -1,22 +1,7 @@
 {
    "SINAL1": {
-      "HORA": "13:20",
-      "ATIVO": "EURGBP",
-      "ENTRADA": "CALL"
-   },
-   "SINAL2": {
-      "HORA": "13:20",
-      "ATIVO": "EURUSD",
-      "ENTRADA": "CALL"
-   },
-   "SINAL3": {
-      "HORA": "13:35",
-      "ATIVO": "AUDJPY",
-      "ENTRADA": "CALL"
-   },
-   "SINAL4": {
-      "HORA": "14:55",
-      "ATIVO": "USDJPY",
-      "ENTRADA": "CALL"
+      "HORA": "21:30",
+      "ATIVO": "NZDUSD-OTC",
+      "ENTRADA": "PUT"
    }
 }

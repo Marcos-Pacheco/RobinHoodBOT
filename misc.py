@@ -197,7 +197,9 @@ def gravar (value,filename,typefile, typewrite):
 def ler (filename):
     try:
         file = open(filename,'r')
-        return file.read()
+        var = file.read()
+        file.close()
+        return var
     except NameError as e:
         print(e)
     except Exception as e:
@@ -267,72 +269,18 @@ def agendar(horario, nomeFuncao, *args):
     # Ex.: schedule.cada.tempo.fazer
     schedule.every().day.at(horario).do(nomeFuncao, *args)
 
-# Executa a agenda. Usa var horaParada para terminar o loop infinito de execução
-def executar_agenda(horaParada, dataExec, take, stop):
+# Executa a agenda enquanto houverem jobs na lista de execução
+def executar_agenda():
     while True:
-        now = datetime.datetime.now()
-        nowH = now.strftime('%H:%M')
-        nowD = now.strftime('%d-%m-%y')
-        if isinstance(take,float):
-            metaCheck = checar_meta_batida(nowD,take)
-        elif isinstance(stop,float):
-            metaCheck = checar_meta_batida(nowD, stop)
-        # Trabalha com stop e take
-        if isinstance(take,float) and isinstance(stop,float):
-            if metaCheck == True:
-                # print (f'[!] {nowH} - META BATIDA, ENCERRANDO.')
-                print (mensagem('AV_META'))
-                break
-            elif metaCheck == 'STPLS':
-                # print (f'[!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.')
-                print(mensagem('AV_STOP_LOSS'))
-                break
-            elif (dataExec == nowD):
-                if (str(nowH) >= horaParada):
-                    # print(f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
-                    print(mensagem('AV_ULTIMO_SINAL'))
-                    break
-                else:
-                    schedule.run_pending()
-                    time.sleep(0.5)
+        if len(schedule.jobs) != 0:
+            schedule.run_pending()
+            time.sleep(0.5)
+        else:
+            break
 
-        # Trabalha apenas com stop
-        elif isinstance(stop,float):
-            if metaCheck == 'STPLS':
-                # print (f'[!] {nowH} - STOP LOSS ATINGIDO, ENCERRANDO.')
-                print(mensagem('AV_STOP_LOSS'))
-                break
-            elif (dataExec == nowD):
-                if (str(nowH) >= horaParada):
-                    # print(f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
-                    print(mensagem('AV_ULTIMO_SINAL'))
-                    break
-                else:
-                    schedule.run_pending()
-                    time.sleep(0.5)
-        # Trabalha apenas com take
-        elif isinstance(take,float):
-            if metaCheck == True:
-                # print (f'[!] {nowH} - META BATIDA, ENCERRANDO.')
-                print(mensagem('AV_META'))
-                break
-            elif (dataExec == nowD):
-                if (str(nowH) >= horaParada):
-                    # print(f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
-                    print(mensagem('AV_ULTIMO_SINAL'))
-                    break
-                else:
-                    schedule.run_pending()
-                    time.sleep(0.5)
-
-        elif (dataExec == nowD):
-            if (str(nowH) >= horaParada):
-                # print (f"[!] {nowH} - ÚLTIMO SINAL REALIZADO, ENCERRANDO.")
-                print(mensagem('AV_ULTIMO_SINAL'))
-                break
-            else:
-                schedule.run_pending()
-                time.sleep(0.5)
+# Limpa agenda
+def limpar_agenda():
+    schedule.clear()
 
 # Código para fazer entrada. valor = valor da entrada; ativo = qual ativo Ex.: 'EURUSD'; tipoAtivo = binária ou digital
 # e tipoEntrada = 'CALL' ou 'PUT', horaEntrada = horário de entrada tratado, tempoVela = o timeframe do gráfico

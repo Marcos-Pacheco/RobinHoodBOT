@@ -10,7 +10,7 @@ from indicadores import *
 import connect, json
 
 # Geri as entradas, passando-as por filtros primeiramente
-def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=False):
+def gerir_entrada(api,ativo,tipoEntrada,porcentEntrada,takeProfit,stopLoss,filtrar=False,gale=False):
     
     # VALORES #
 
@@ -40,7 +40,32 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
 
     # STATUS META #
 
-    statusMeta = checar_meta_batida(nowD)
+    if isinstance(takeProfit, float):
+        metaCheck = checar_meta_batida(nowD, takeProfit)
+    elif isinstance(stopLoss, float):
+        metaCheck = checar_meta_batida(nowD, stopLoss)
+
+    # Trabalha com stop e take
+    if isinstance(takeProfit, float) and isinstance(stopLoss, float):
+        if metaCheck == True:
+            print(mensagem('AV_META'))
+            limpar_agenda()
+
+        elif metaCheck == 'STPLS':
+            print(mensagem('AV_STOP_LOSS'))
+            limpar_agenda()
+
+    # Trabalha apenas com stop
+    elif isinstance(stopLoss, float):
+        if metaCheck == 'STPLS':
+            print(mensagem('AV_STOP_LOSS'))
+            limpar_agenda()
+
+    # Trabalha apenas com take
+    elif isinstance(takeProfit, float):
+        if metaCheck == True:
+            print(mensagem('AV_META'))
+            limpar_agenda()
 
     # STATUS META #
 
@@ -133,15 +158,11 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
                     # Novos resultados que serão gravados no bloco de gravação abaixo
                     resultado, lucro = entrar(api, galevar, ativo, tipoAtivo, tipoEntrada, periodoVela)
                 except TypeError as e:
-                    # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
                     print(mensagem('ERR_ENTRADA', e))
                 except Exception as e:
-                    # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
                     print(mensagem('ERR_INDEFINIDO', e))
                 else:
                     if lucro != None:
-                        # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                        #       f' {lucro}')
                         print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
     else:
         print(mensagem('AV_ATIVO_FECHADO',ativo,tipoAtivo))
@@ -164,7 +185,7 @@ def gerir_entrada(api,ativo,tipoEntrada, porcentEntrada, filtrar=False, gale=Fal
 
 # Mensagem inicial
 print(mensagem('CBC'))
-print (mensagem(   'LINHA'))
+print (mensagem('LINHA'))
 
 now = datetime.datetime.now()
 nowH = str(now.strftime('%H:%M'))
@@ -176,7 +197,6 @@ linha = []
 linhas = []
 
 print(mensagem('INPUT_SINAIS'))
-# print (f'[!] {nowH} - ENTRE COM A LISTA DE SINAIS ABAIXO: \n')
 while True:
     linha = input()
     if linha:
@@ -186,11 +206,11 @@ while True:
 valor = formatar_sinais('\n'.join(linhas))
 
 # Inputs de opção de gerênciamento 
-opFiltro = str(input(mensagem( 'INPUT_FILTROS')))
-opGale = str(input(mensagem(   'INPUT_GALE')))
-porcentEntrada = input(mensagem(   'INPUT_PORCENT_ENTRADA'))
-takepft = input(mensagem(  'INPUT_TAKEPROFIT')) # 0.02 padrão
-stoplss = input(mensagem(  'INPUT_STOPLOSS')) # 0.02 padrão
+opFiltro = str(input(mensagem('INPUT_FILTROS')))
+opGale = str(input(mensagem('INPUT_GALE')))
+porcentEntrada = input(mensagem('INPUT_PORCENT_ENTRADA'))
+takepft = input(mensagem('INPUT_TAKEPROFIT')) # 0.02 padrão
+stoplss = input(mensagem('INPUT_STOPLOSS')) # 0.02 padrão
 
 # tranforma os valores digitados em decimal
 porcentEntrada = float(porcentEntrada)
@@ -200,16 +220,15 @@ porcentEntrada = porcentEntrada/100 # teste = 0.00012
 # deixar vazio para operar sem take ou loss
 try:
     takepft = float(takepft)
-    takepft = round(takepft/100,2)
+    takepft = round((takepft/100),2)
 except:
-    takepft = ''
+    pass
 
 try:
     stoplss = float(stoplss)
-    stoplss= round(stoplss/100,2)
+    stoplss= round((stoplss/100),2)
 except:
-    stoplss = ''
-
+    pass
 
 # Transforma os valores str em booleanos
 if opFiltro == 'S' or opFiltro == 's':
@@ -257,11 +276,16 @@ for i, j in sinais.items():
 
     # Verifica se o sinal em questão ainda não passou do tempo, se não, realiza o agendamento
     if (j['HORA'] > nowH):
-        agendar(formatar_hora_entrada(j['HORA'], 10), gerir_entrada, api, j['ATIVO'], j['ENTRADA'], porcentEntrada,
-                opFiltro, opGale)
+        # api,ativo,tipoEntrada,porcentEntrada,takeProfit,stopLoss,horaParada,filtrar=False,gale=False
+        agendar(formatar_hora_entrada(j['HORA'],10),gerir_entrada,api,j['ATIVO'],j['ENTRADA'],porcentEntrada,takepft,
+                stoplss,opFiltro,opGale)
 
-horaFinal = maiorH
-# Adiciona a agenda jobs de reconnect a cada 10 min
-schedule.every(10).minutes.do(connect.login, True)
-executar_agenda(formatar_hora_parada(horaFinal, 6), nowD, takepft, stoplss)
+# HORÁRIO DE PARADA
+horaParada = formatar_hora_parada(maiorH, 6)
+agendar(horaParada,limpar_agenda)
+msg = mensagem('AV_ULTIMO_SINAL')
+agendar(horaParada,print,'  [!] '+horaParada+msg[11:])
+
+# Executa agenda com sinais
+executar_agenda()
 
