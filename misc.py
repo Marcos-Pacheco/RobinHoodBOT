@@ -8,7 +8,7 @@
 from datetime import datetime
 from dateutil import tz
 from colorama import init, Fore, Back, Style
-import json, schedule, time, datetime, shutil, decimal
+import json, schedule, time, datetime, shutil, decimal, threading, sys
 
 # Coleção de todos os outputs do código com tratamento de cores
 def mensagem(menName,*args):
@@ -50,6 +50,14 @@ def mensagem(menName,*args):
         ativo = args[0]
         tipoAtivo = args[1]
 
+    elif menName=='LOAD':
+        chars='/—\|—\|'
+        for i in range(10):
+            while True:
+                for char in chars:
+                    sys.stdout.write(f'\r{char}')
+                    sys.stdout.write(f'\r{char}')
+                    time.sleep(0.1)
     # Pega o tamanho horizontal do terminal
     size = shutil.get_terminal_size().columns
     linha = '_'*size
@@ -73,6 +81,8 @@ def mensagem(menName,*args):
     aux = cbcIn.splitlines()
     spacing = size1 * ' '
     cbcOut = f'\n{spacing}'.join(aux)
+
+    # Load Mensage
 
     # Coleção com todas as mensagens
     mensagem = {
@@ -267,6 +277,7 @@ def formatar_hora_parada(horaSinalFinal,addMin):
 # Agenda o horário e qual ação será realizada
 def agendar(horario, nomeFuncao, *args):
     # Ex.: schedule.cada.tempo.fazer
+
     schedule.every().day.at(horario).do(nomeFuncao, *args)
 
 # Executa a agenda enquanto houverem jobs na lista de execução
@@ -281,6 +292,12 @@ def executar_agenda():
 # Limpa agenda
 def limpar_agenda():
     schedule.clear()
+
+# Usar threaded execution
+def run_threaded(funcName,*args):
+    job_thread = threading.Thread(target=funcName,args=args)
+    job_thread.start()
+    
 
 # Código para fazer entrada. valor = valor da entrada; ativo = qual ativo Ex.: 'EURUSD'; tipoAtivo = binária ou digital
 # e tipoEntrada = 'CALL' ou 'PUT', horaEntrada = horário de entrada tratado, tempoVela = o timeframe do gráfico

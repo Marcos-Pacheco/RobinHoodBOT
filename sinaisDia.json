@@ -1,7 +1,12 @@
 {
    "SINAL1": {
-      "HORA": "21:30",
-      "ATIVO": "NZDUSD-OTC",
+      "HORA": "18:10",
+      "ATIVO": "EURGBP-OTC",
       "ENTRADA": "PUT"
+   },
+   "SINAL2": {
+      "HORA": "18:15",
+      "ATIVO": "GBPJPY-OTC",
+      "ENTRADA": "CALL"
    }
 }

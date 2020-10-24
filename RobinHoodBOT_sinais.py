@@ -277,15 +277,18 @@ for i, j in sinais.items():
     # Verifica se o sinal em questão ainda não passou do tempo, se não, realiza o agendamento
     if (j['HORA'] > nowH):
         # api,ativo,tipoEntrada,porcentEntrada,takeProfit,stopLoss,horaParada,filtrar=False,gale=False
-        agendar(formatar_hora_entrada(j['HORA'],10),gerir_entrada,api,j['ATIVO'],j['ENTRADA'],porcentEntrada,takepft,
+        agendar(formatar_hora_entrada(j['HORA'],3),run_threaded,gerir_entrada,api,j['ATIVO'],j['ENTRADA'],porcentEntrada,takepft,
                 stoplss,opFiltro,opGale)
+        # agendar(formatar_hora_entrada(j['HORA'],3),run_threaded,gerir_entrada(api,j['ATIVO'],j['ENTRADA'],porcentEntrada,takepft,
+        #         stoplss,opFiltro,opGale))
 
 # HORÁRIO DE PARADA
-horaParada = formatar_hora_parada(maiorH, 6)
+horaParada = formatar_hora_parada(maiorH, 11)
 agendar(horaParada,limpar_agenda)
 msg = mensagem('AV_ULTIMO_SINAL')
 agendar(horaParada,print,'  [!] '+horaParada+msg[11:])
 
 # Executa agenda com sinais
 executar_agenda()
+
 
