@@ -1,11 +1,6 @@
 {
    "SINAL1": {
-      "HORA": "18:10",
-      "ATIVO": "EURGBP-OTC",
-      "ENTRADA": "PUT"
-   },
-   "SINAL2": {
-      "HORA": "18:15",
+      "HORA": "20:20",
       "ATIVO": "GBPJPY-OTC",
       "ENTRADA": "CALL"
    }

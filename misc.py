@@ -123,10 +123,10 @@ def mensagem(menName,*args):
         'ERR_CHECAR_ABERTO'     : f'  [!] {nowH} - VALOR EM TIPO ATIVO DEVE SER "BINARY" OU "DIGITAL".',
         'ERR_PAYOUT'            : f'  [!] {nowH} - ATIVO {ativo} PARA {tipoAtivo} NÃO ENCONTRADO.',
         'ERR_TIPO_ATIVO_PAYOUT' : f'  [!] {nowH} - VALORES ACEITOS SÃO "BINARY" e "TURBO"',
+        'ERR_PAYOUT_TIMEOUT'    : f'  [!] {nowH} - PAYOUT NÃO RETORNADO A TEMPO.',
         'ERR_MARTINGALE'        : f'  [!] {nowH} - PAYOUT = {payoutVar}.',
         'ERR_INPUT_FILTROGALE'  : f'  [!] {nowH} - ENTRE COM "S" PARA SIM OU "N" PARA NÃO.',
-        'ERR_TENDENCIA'         : f'  [!] {nowH} - ENTRADA "{tipoEntrada}" PARA "{ativo}" TIPO "{tipoAtivo}" ABORTADA: '
-                                  f'CONTRA TENDÊNCIA.',
+        'ERR_TENDENCIA'         : f'  [!] {nowH} - ENTRADA "{tipoEntrada}" PARA "{ativo}" TIPO "{tipoAtivo}" ABORTADA: CONTRA TENDÊNCIA.',
         'ERR_ENTRADA'           : f'  [!] {nowH} - ERRO ENTRADA: {exceptError}',
         'ERR_INDEFINIDO'        : f'  [!] {nowH} - ERRO INDEFINIDO: {exceptError}',
 
@@ -462,28 +462,40 @@ def checar_ativo_aberto(api,ativo,tipoAtivo):
 # Retorna o payout do ativo definido
 def payout(api,ativo,tipoAtivo,timeframe = 1):
     data = api.get_all_profit()
+    print(api,ativo,tipoAtivo,timeframe)
 
     if tipoAtivo == 'BINARY':
         pay = data[ativo]['turbo']
         if isinstance(pay, float):
             return (int(data[ativo]['turbo'] * 100))
         else:
-            # print (f'ERRO_PAYOUT: ATIVO {ativo} PARA {tipoAtivo} NÃO ENCONTRADO.')
             print(mensagem('ERR_PAYOUT',ativo,tipoAtivo))
             return None
 
     elif tipoAtivo == 'DIGITAL':
         api.subscribe_strike_list(ativo,timeframe)
-        while True:
+        """
+        O payout do ativo não retorna na primeira tentativa, por isso é feito um laço para aguardar o valor ser
+        diferente de false. Contudo, caso realmente não seja possível adquirir o valor do payout, aguardar apenas 60 seg
+        e se ainda false, retornar mensagem de erro.
+
+        AVISOS:
+        Alguns ativos não retornam por falta de atualização da api, exemplos: GBPJPY-OTC
+        """
+        for i in range(60):
             data = api.get_digital_current_profit(ativo,timeframe)
+            print(data)
             if data != False:
                 data = int(data)
                 break
+            elif data == False and i == 59:
+                print(mensagem('ERR_PAYOUT_TIMEOUT'))
+                api.unsubscribe_strike_list(ativo,timeframe)
+                return None
             time.sleep(1)
         api.unsubscribe_strike_list(ativo,timeframe)
         return data
     else:
-        # print('ERRO_TIPOATIVO:VALORES ACEITOS SÃO "BINARY" e "TURBO"')
         print(mensagem('ERR_TIPO_ATIVO_PAYOUT'))
         return None
 

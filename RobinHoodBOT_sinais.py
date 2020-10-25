@@ -109,16 +109,12 @@ def gerir_entrada(api,ativo,tipoEntrada,porcentEntrada,takeProfit,stopLoss,filtr
                 try:
                     resultado, lucro = entrar(api,valor,ativo,tipoAtivo,tipoEntrada,periodoVela)
                 except TypeError as e:
-                    # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
                     print(mensagem('ERR_ENTRADA',e))
                 except Exception as e:
-                    # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
                     print(mensagem('ERR_INDEFINIDO', e))
                 else:
                     if lucro != None:
                         print(mensagem('AV_RESULTADO', ativo, tipoEntrada, resultado, lucro))
-                        # print(f'[!] {nowH} - ATIVO: {ativo} | ENTRADA: {tipoEntrada} | RESULTADO: {resultado} | LUCRO:'
-                        #       f' {lucro}')
 
             else:
                 print(mensagem('ERR_TENDENCIA',tipoEntrada,ativo,tipoAtivo))
@@ -128,10 +124,8 @@ def gerir_entrada(api,ativo,tipoEntrada,porcentEntrada,takeProfit,stopLoss,filtr
             try:
                 resultado, lucro = entrar(api, valor, ativo, tipoAtivo, tipoEntrada, periodoVela)
             except TypeError as e:
-                # print(f'[!] {nowH} - ERRO_ENTRADA:', e)
                 print(mensagem('ERR_ENTRADA', e))
             except Exception as e:
-                # print(f'[!] {nowH} - ERRO_INDEFINIDO:', e)
                 print(mensagem('ERR_INDEFINIDO', e))
             else:
                 if lucro != None:
@@ -141,14 +135,12 @@ def gerir_entrada(api,ativo,tipoEntrada,porcentEntrada,takeProfit,stopLoss,filtr
         if gale:
             # Carrega payout do ativo
             payoutvar = payout(api, ativo, tipoAtivo)
-
             # Checa se o resultado foi LOSS e se o calculo de payout foi executado com sucesso, se sim executa o martingale
             if resultado == "LOSS" and payoutvar != None:
                 losses += 1
                 # Gravar resultado da primeira entrada que deu loss
                 balancoFin = banca(api)
-                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins,
-                               losses)
+                gravar_balanco(filepath, balancoFin, nowH, nowD, ativo, tipoAtivo, resultado, lucro, wins, losses)
 
                 # Executar martingale
                 galevar = martingale(valor, lucro, payoutvar)
@@ -279,8 +271,6 @@ for i, j in sinais.items():
         # api,ativo,tipoEntrada,porcentEntrada,takeProfit,stopLoss,horaParada,filtrar=False,gale=False
         agendar(formatar_hora_entrada(j['HORA'],3),run_threaded,gerir_entrada,api,j['ATIVO'],j['ENTRADA'],porcentEntrada,takepft,
                 stoplss,opFiltro,opGale)
-        # agendar(formatar_hora_entrada(j['HORA'],3),run_threaded,gerir_entrada(api,j['ATIVO'],j['ENTRADA'],porcentEntrada,takepft,
-        #         stoplss,opFiltro,opGale))
 
 # HORÁRIO DE PARADA
 horaParada = formatar_hora_parada(maiorH, 11)
