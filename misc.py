@@ -462,7 +462,6 @@ def checar_ativo_aberto(api,ativo,tipoAtivo):
 # Retorna o payout do ativo definido
 def payout(api,ativo,tipoAtivo,timeframe = 1):
     data = api.get_all_profit()
-    print(api,ativo,tipoAtivo,timeframe)
 
     if tipoAtivo == 'BINARY':
         pay = data[ativo]['turbo']
@@ -484,7 +483,6 @@ def payout(api,ativo,tipoAtivo,timeframe = 1):
         """
         for i in range(60):
             data = api.get_digital_current_profit(ativo,timeframe)
-            print(data)
             if data != False:
                 data = int(data)
                 break
